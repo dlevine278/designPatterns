@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Main-Class: 
+Class-Path: jgrapht-core-1.5.2.jar jheaps-0.14.jar apfloat-1.10.1.jar jg
+ rapht-ext-1.5.2.jar jgrapht-core-1.5.2.jar jheaps-0.14.jar apfloat-1.10
+ .1.jar jgraphx-4.2.2.jar slf4j-api-2.0.7.jar jackson-annotations-2.15.2
+ .jar jackson-core-2.15.2.jar jackson-databind-2.15.2.jar jackson-datafo
+ rmat-yaml-2.14.2.jar snakeyaml-1.33.jar
+

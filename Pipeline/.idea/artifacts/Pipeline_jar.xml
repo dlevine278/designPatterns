@@ -1,0 +1,18 @@
+<component name="ArtifactManager">
+  <artifact name="Pipeline:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Pipeline_jar</output-path>
+    <root id="root">
+      <element id="archive" name="Pipeline2.jar">
+        <element id="module-output" name="Pipeline2" />
+      </element>
+      <element id="library" level="project" name="org.jgrapht:jgrapht-core:1.5.2" />
+      <element id="library" level="project" name="org.jgrapht:jgrapht-ext:1.5.2" />
+      <element id="library" level="project" name="Maven: org.slf4j:slf4j-api:2.0.7" />
+      <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.15.2" />
+      <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-core:2.15.2" />
+      <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.15.2" />
+      <element id="library" level="project" name="Maven: com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.2" />
+      <element id="library" level="project" name="Maven: org.yaml:snakeyaml:1.33" />
+    </root>
+  </artifact>
+</component>
