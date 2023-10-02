@@ -29,7 +29,7 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
 
     private static final Logger logger = LoggerFactory.getLogger(Pipeline.class);
     private List<StageWrapper> stages = new Vector<>();
-    private ExecutionContext context;
+    private ExecutionContext context = new ExecutionContext();
     private Boolean fastFail = true; // true by default
 
     public enum ImageType {
