@@ -1,10 +1,11 @@
 package org.dplevine.patterns.pipeline;
 
 public class PipelineTest implements Stage, StageBuilder {
+    static Pipeline pipeline;
 
     public static void main(String args[]) {
         try {
-            Pipeline pipeline = PipelineBuilder.createBuilder().buildFromPathName("/Users/dplevine/Desktop/example 3.json");
+            pipeline = PipelineBuilder.createBuilder().buildFromPathName("/Users/dplevine/Desktop/example 3.json");
             ExecutionContext context = pipeline.run();
             pipeline.render("/Users/dplevine/Desktop/example", Pipeline.ImageType.GIF);
             System.out.println(context.getEventLog());
@@ -16,7 +17,7 @@ public class PipelineTest implements Stage, StageBuilder {
 
     @Override
     public ExecutionContext doWork(ExecutionContext context) throws Exception {
-        //Thread.sleep(1000);
+        Thread.sleep(1000);
         return context;
     }
 

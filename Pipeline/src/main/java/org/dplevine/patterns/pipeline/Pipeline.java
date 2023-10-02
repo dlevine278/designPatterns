@@ -2,6 +2,7 @@ package org.dplevine.patterns.pipeline;
 
 import com.mxgraph.layout.mxCompactTreeLayout;
 import com.mxgraph.layout.mxIGraphLayout;
+import com.mxgraph.model.mxICell;
 import com.mxgraph.util.*;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.cycle.CycleDetector;
@@ -16,9 +17,8 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.Iterator;
+import java.util.*;
 import java.util.List;
-import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
@@ -54,15 +54,6 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
     Pipeline addStage(StageWrapper stage) {
         stages.add(stage);
         return this;
-    }
-
-    Pipeline addStages(List<StageWrapper> stages) {
-        this.stages.addAll(stages);
-        return this;
-    }
-
-    List<StageWrapper> getStages() {
-        return stages;
     }
 
     @Override
@@ -124,6 +115,7 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
     }
 
     public final ExecutionContext run(ExecutionContext context) {
+        this.context = context;
         context.setInProgress();
         context.createEvent(this, ExecutionContext.EventType.PIPELINE_IN_PROGRESS, this.getClass().getName() + ".run()");
         try {
@@ -182,6 +174,10 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
     }
 
     public BufferedImage render() throws Exception {
+        final String WHITE = "#ffffff";
+        final String YELLOW = "#ffff00";
+        final String GREEN = "#008000";
+        final String RED = "#ff0000";
         Graph<String, DefaultEdge> pipelineGraph = buildPiplineGraph();
 
         JGraphXAdapter<String, DefaultEdge> graphAdapter =
@@ -190,6 +186,51 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
         mxIGraphLayout layout = new mxCompactTreeLayout(graphAdapter);
         layout.execute(graphAdapter.getDefaultParent());
 
+        // color the nodes based on activity (white - nothing, yellow - in progress, green - completed/success, red - failure)
+        graphAdapter.getModel().beginUpdate();
+
+        Map<String, mxICell> nodeMap = graphAdapter.getVertexToCellMap();
+        Collection<mxICell> whites = nodeMap.values();
+        Collection<mxICell> reds = new Vector<>();
+        Collection<mxICell> greens = new Vector<>();
+        Collection<mxICell> yellows = new Vector<>();
+
+        List<ExecutionContext.Event> eventLog = context.getEventLog();
+        for(String vertexId : pipelineGraph.vertexSet()) {
+            for(int i = eventLog.size() - 1; i >=0; i--) {
+                ExecutionContext.Event event = eventLog.get(i);
+                if (vertexId.contains(event.getId())) {
+                    switch (event.getEventType()) {
+                        case ExecutionContext.EventType.CALLED_STAGE:
+                        case ExecutionContext.EventType.SUCCESS:
+                            greens.add(nodeMap.get(vertexId));
+                            break;
+
+                        case ExecutionContext.EventType.PIPELINE_IN_PROGRESS:
+                        case ExecutionContext.EventType.CALLING_STAGE:
+                            yellows.add(nodeMap.get(vertexId));
+                            break;
+
+                        case ExecutionContext.EventType.FAILURE:
+                        case ExecutionContext.EventType.EXCEPTION:
+                            reds.add(nodeMap.get(vertexId));
+                            break;
+                    }
+                }
+            }
+        }
+
+        try {
+            graphAdapter.setCellStyles(mxConstants.STYLE_FILLCOLOR, WHITE, whites.toArray());
+            graphAdapter.setCellStyles(mxConstants.STYLE_FILLCOLOR, YELLOW, yellows.toArray());
+            graphAdapter.setCellStyles(mxConstants.STYLE_FILLCOLOR, GREEN, greens.toArray());
+            graphAdapter.setCellStyles(mxConstants.STYLE_FILLCOLOR, RED, reds.toArray());
+
+        } finally {
+            graphAdapter.getModel().endUpdate();
+        }
+
+        // return an image, the background color of the image is set to white
         return mxCellRenderer.createBufferedImage(graphAdapter, null, 2, Color.WHITE, true, null);
     }
 }

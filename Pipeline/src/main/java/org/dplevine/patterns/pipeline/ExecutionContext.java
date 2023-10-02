@@ -43,6 +43,14 @@ public class ExecutionContext {
 
         public String getId() { return id;}
 
+        String getId(String superId) {
+            if (superId.contains(id)) {
+                return superId;
+            } else {
+                return "";
+            }
+        }
+
         public String getEventType() {
             return eventType;
         }
