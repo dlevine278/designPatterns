@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 
 class SpecFromYamlGenerator implements Stage {
-    private static Logger logger = LoggerFactory.getLogger(SpecFromYamlGenerator.class);
+    private static final Logger logger = LoggerFactory.getLogger(SpecFromYamlGenerator.class);
 
     @Override
     public ExecutionContext doWork(ExecutionContext context) throws Exception {

@@ -13,19 +13,16 @@ import java.util.concurrent.Executors;
 
 final class Fork extends StageWrapper { // will change visibility once the builder is complete
     private final int THREADPOOL_SIZE = 10;  // size of threadpool = number of concurrent pipelines that can run at any given time
+    private final String FORK_START_TAG  = " - <Fork>";
+    private final String FORK_END_TAG = " - </Fork>";
 
     private ExecutorService executorService;
-    private static Logger logger = LoggerFactory.getLogger(Fork.class);
+    private static final Logger logger = LoggerFactory.getLogger(Fork.class);
     private final List<Pipeline> forkPipelines = new Vector<>();
 
     //ctors
     Fork(String id) {
         super(id);
-    }
-
-    Fork(String id, List<Pipeline> forkPipelines) {
-        super(id);
-        this.forkPipelines.addAll(forkPipelines);
     }
 
     Fork addPipeline(Pipeline forkPipeline) {
@@ -40,14 +37,16 @@ final class Fork extends StageWrapper { // will change visibility once the build
     }
 
     @Override
-    final void init(ExecutionContext context) {
+    final ExecutionContext init(ExecutionContext context) {
         setStage(this);
         executorService = Executors.newFixedThreadPool(THREADPOOL_SIZE); // this is what manages the concurrency
+        return context;
     }
 
     @Override
-    final void close(ExecutionContext context) {
+    final ExecutionContext close(ExecutionContext context) {
         executorService.shutdown();  // clean up all the threads (after execution has completed)
+        return context;
     }
 
     // because this class is derived from PipelineStage, it implements the doWork interface (abstract method)
@@ -74,8 +73,8 @@ final class Fork extends StageWrapper { // will change visibility once the build
 
     @Override
     String buildGraph(String root, Graph<String, DefaultEdge> pipelineGraph) {
-        String startId = this.getId() + " - [Fork Start]";
-        String endId = this.getId() + " - [Fork End]";
+        String startId = this.getId() + FORK_START_TAG;
+        String endId = this.getId() + FORK_END_TAG;
         pipelineGraph.addVertex(startId);
         pipelineGraph.addVertex(endId);
 

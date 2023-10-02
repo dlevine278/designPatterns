@@ -1,6 +1,5 @@
 package org.dplevine.patterns.pipeline;
 
-import com.mxgraph.layout.mxCircleLayout;
 import com.mxgraph.layout.mxCompactTreeLayout;
 import com.mxgraph.layout.mxIGraphLayout;
 import com.mxgraph.util.*;
@@ -19,19 +18,21 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 public final class Pipeline extends StageWrapper implements Callable<ExecutionContext> {
 
-    private static Logger logger = LoggerFactory.getLogger(Pipeline.class);
+    private final String PIPELINE_START_TAG  = " - <Pipeline>";
+    private final String PIPELINE_END_TAG = " - </Pipeline>";
+
+    private static final Logger logger = LoggerFactory.getLogger(Pipeline.class);
     private List<StageWrapper> stages = new Vector<>();
     private ExecutionContext context;
     private Boolean fastFail = true; // true by default
 
-    public static enum ImageType {
+    public enum ImageType {
         JPEG,
         PNG,
         BMP,
@@ -44,42 +45,9 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
         super(id);
     }
 
-    Pipeline(String id, List<StageWrapper> stages) {
-        super(id);
-        this.stages.addAll(stages);
-    }
-
-    Pipeline(String id, boolean fastFail) {
-        super(id);
-        this.fastFail = fastFail;
-    }
-
-    Pipeline(ExecutionContext context, String id, boolean fastFail) {
-        super(id);
-        this.fastFail = fastFail;
-        this.context = context;
-    }
-
-    Pipeline(String id, boolean fastFail, List<StageWrapper> stages) {
-        super(id);
-        this.fastFail = fastFail;
-        this.stages.addAll(stages);
-    }
-
-    Pipeline(ExecutionContext context, String id, boolean fastFail, List<StageWrapper> stages) {
-        super(id);
-        this.fastFail = fastFail;
-        this.stages.addAll(stages);
-        this.context = context;
-    }
-
     //setters and getters
     void setContext(ExecutionContext context) {
         this.context = context;
-    }
-
-    ExecutionContext getContext() {
-        return context;
     }
 
     // we can incrementally add stages as well
@@ -99,14 +67,15 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
 
     @Override
     // StageWrapper
-    void init(ExecutionContext context) {
+    final ExecutionContext init(ExecutionContext context) {
         setStage(this);
+        return context;
     }
 
     @Override
     // StageWrapper
-    void close(ExecutionContext context) {
-
+    final ExecutionContext close(ExecutionContext context) {
+        return context;
     }
 
     @Override
@@ -121,12 +90,12 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
         }
 
         // we start at index = 1 because the first entry (i.e., index = 0) is the root
-        for(Integer i = 1; i < stages.size(); i++) {
+        for(int i = 1; i < stages.size(); i++) {
             pipeline.addEdge(stages.get(i-1), stages.get(i));
         }
 
         // 2. make sure this pipeline's graph is acyclic (probably redundant)
-        if (new CycleDetector<StageWrapper, DefaultEdge>(pipeline).detectCycles()) {
+        if (new CycleDetector<>(pipeline).detectCycles()) {
             throw new Exception("The pipeline must be acyclic, cycles detected in pipeline: " + getId());
         }
 
@@ -137,15 +106,8 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
             StageWrapper stage= iterator.next();
 
             try {
-                stage.init(runner.getContext());
-                runner.getContext().createEvent(stage, ExecutionContext.EventType.CALLING_STAGE, stage.getStage().getClass().getCanonicalName() + ".doWork()");
                 runner.run(stage);
-                stage.close(runner.getContext());
-                runner.getContext().createEvent(stage, ExecutionContext.EventType.CALLED_STAGE, stage.getStage().getClass().getCanonicalName() + ".doWork()");
             } catch (Exception e) {
-                runner.getContext().createEvent(stage, ExecutionContext.EventType.EXCEPTION, stage.getStage().getClass().getCanonicalName() + e.getLocalizedMessage());
-                e.printStackTrace();
-                stage.close(runner.getContext());
                 if (fastFail) {
                     logger.error("stack trace: " + e.getLocalizedMessage());
                     throw new ExecutionException(e);
@@ -181,14 +143,15 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
     @Override
     //Callable
     public ExecutionContext call() throws Exception {
-        return doWork(context);
+        StageRunner runner = new StageRunner(context);
+        return runner.run(this);
     }
 
     @Override
     //StageWrapper
     String buildGraph(String root, Graph<String, DefaultEdge> pipelineGraph) {
-        String startId = this.getId() + " - [Pipeline Start]";
-        String endId = this.getId() + " - [Pipeline End]";
+        String startId = this.getId() + PIPELINE_START_TAG;
+        String endId = this.getId() + PIPELINE_END_TAG;
         pipelineGraph.addVertex(startId);
         pipelineGraph.addVertex(endId);
 
@@ -222,14 +185,12 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
         Graph<String, DefaultEdge> pipelineGraph = buildPiplineGraph();
 
         JGraphXAdapter<String, DefaultEdge> graphAdapter =
-                new JGraphXAdapter<String, DefaultEdge>(pipelineGraph);
+                new JGraphXAdapter<>(pipelineGraph);
         graphAdapter.getEdgeToCellMap().forEach((edge, cell) -> cell.setValue(null));
         mxIGraphLayout layout = new mxCompactTreeLayout(graphAdapter);
         layout.execute(graphAdapter.getDefaultParent());
 
-        BufferedImage image =
-                mxCellRenderer.createBufferedImage(graphAdapter, null, 2, Color.WHITE, true, null);
-        return image;
+        return mxCellRenderer.createBufferedImage(graphAdapter, null, 2, Color.WHITE, true, null);
     }
 }
 

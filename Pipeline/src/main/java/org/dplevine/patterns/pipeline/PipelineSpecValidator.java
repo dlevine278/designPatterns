@@ -6,7 +6,7 @@ import java.util.Set;
 class PipelineSpecValidator implements Stage {
 
     // make sure all ids are non-null
-    private class ValidateNullIDs implements Stage {
+    private static class ValidateNullIDs implements Stage {
 
         @Override
         public ExecutionContext doWork(ExecutionContext context) throws Exception {
@@ -41,13 +41,13 @@ class PipelineSpecValidator implements Stage {
     }
 
     // make sure all the ids are unique from one another
-    private class ValidateUniqueIDs implements Stage {
+    private static class ValidateUniqueIDs implements Stage {
 
         @Override
         public ExecutionContext doWork(ExecutionContext context) throws Exception {
             PipelineSpecification spec = (PipelineSpecification) context.getObject(BuilderContext.PIPELINE_SPEC);
-            Set<String> duplicateIds = new HashSet<String>();
-            Set<String> ids = new HashSet<String>();
+            Set<String> duplicateIds = new HashSet<>();
+            Set<String> ids = new HashSet<>();
 
             for (PipelineSpecification.StageDefinition stageDef : spec.getStages()) {
                 if (!ids.add(stageDef.getId())) {
@@ -66,14 +66,14 @@ class PipelineSpecValidator implements Stage {
             }
 
             if (!duplicateIds.isEmpty()) {
-                throw new Exception("The following Ids are duplicated:" + duplicateIds.toString());
+                throw new Exception("The following Ids are duplicated:" + duplicateIds);
             }
             return context;
         }
     }
 
     // make sure stages are well formed (i.e., references are valid)
-    private class ValidateStageDefs implements Stage {
+    private static class ValidateStageDefs implements Stage {
 
         @Override
         public ExecutionContext doWork(ExecutionContext context) throws Exception {
@@ -87,7 +87,7 @@ class PipelineSpecValidator implements Stage {
             }
 
             if (!malformedStages.isEmpty()) {
-                throw new Exception("The following stage definitions are malformed:" + malformedStages.toString());
+                throw new Exception("The following stage definitions are malformed:" + malformedStages);
             }
 
             return context;
@@ -95,7 +95,7 @@ class PipelineSpecValidator implements Stage {
     }
 
     // make sure piplines are well formed (i.e., references are valid)
-    private class ValidatePipelineDefs implements Stage {
+    private static class ValidatePipelineDefs implements Stage {
 
         @Override
         public ExecutionContext doWork(ExecutionContext context) throws Exception {
@@ -117,7 +117,7 @@ class PipelineSpecValidator implements Stage {
             }
 
             if (!malformedPipelines.isEmpty()) {
-                throw new Exception("The following pipelines contain unresolved references:" + malformedPipelines.toString());
+                throw new Exception("The following pipelines contain unresolved references:" + malformedPipelines);
             }
 
             return context;
@@ -125,7 +125,7 @@ class PipelineSpecValidator implements Stage {
     }
 
     // make sure forks are well formed (i.e., references are valid)
-    private class ValidateForkDefs implements Stage {
+    private static class ValidateForkDefs implements Stage {
 
         @Override
         public ExecutionContext doWork(ExecutionContext context) throws Exception {
@@ -147,7 +147,7 @@ class PipelineSpecValidator implements Stage {
             }
 
             if (!malformedForks.isEmpty()) {
-                throw new Exception("The following forks contain unresolved references:" + malformedForks.toString());
+                throw new Exception("The following forks contain unresolved references:" + malformedForks);
             }
 
             return context;
@@ -155,7 +155,7 @@ class PipelineSpecValidator implements Stage {
     }
 
     // make sure steps are well formed (i.e., references are valid)
-    private class ValidateSteps implements Stage {
+    private static class ValidateSteps implements Stage {
 
         @Override
         public ExecutionContext doWork(ExecutionContext context) throws Exception {
@@ -175,7 +175,7 @@ class PipelineSpecValidator implements Stage {
             }
 
             if (!malformedSteps.isEmpty()) {
-                throw new Exception("The following steps definitions are unresolved:" + malformedSteps.toString());
+                throw new Exception("The following steps definitions are unresolved:" + malformedSteps);
             }
 
             return context;

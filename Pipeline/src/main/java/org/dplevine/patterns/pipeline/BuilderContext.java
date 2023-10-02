@@ -4,9 +4,8 @@ class BuilderContext extends ExecutionContext {
     public static final String SPEC_PATHNAME = "SPEC_PATHNAME";
     public static final String PIPELINE_SPEC = "PIPELINE_SPEC";
     public static final String PIPELINE = "PIPELINE";
-    public static final String STAGE_BUILDERS = "STAGE_BUILDERS";
 
-    static interface BuilderEvents extends ExecutionContext.EventType {
+    interface BuilderEvents extends ExecutionContext.EventType {
         public static String NULL_IDS_FOUND = "NULL_IDS_FOUND";
     }
 

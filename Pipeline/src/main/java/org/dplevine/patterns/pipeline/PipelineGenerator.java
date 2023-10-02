@@ -78,10 +78,10 @@ class PipelineGenerator implements Stage {
             }
         }
 
-        return new CycleDetector<String, DefaultEdge>(pipelineGraph).detectCycles();
+        return new CycleDetector<>(pipelineGraph).detectCycles();
     }
 
-    class SimpleStageBuilder {
+    static class SimpleStageBuilder {
         private StageBuilder stageBuilder;
 
         SimpleStageBuilder(String classpath, String className) throws Exception {
@@ -94,12 +94,7 @@ class PipelineGenerator implements Stage {
             }
         }
 
-        SimpleStageBuilder(StageBuilder stageBuilder) {
-            this.stageBuilder = stageBuilder;
-        }
-
         StageWrapper newStage(String id) throws Exception {
-            Stage stage;
             if (stageBuilder == null) {
                 throw new Exception("No StageBuilder found for: " + id);
             }

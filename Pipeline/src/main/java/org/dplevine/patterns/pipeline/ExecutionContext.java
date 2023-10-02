@@ -53,7 +53,7 @@ public class ExecutionContext {
 
         @Override
         public String toString() {
-            return timestamp + " " + eventType + " " + details + "\n";
+            return timestamp + " " + id + " " + eventType + " " + details + "\n";
         }
     }
 

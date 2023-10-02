@@ -8,7 +8,7 @@ import java.io.File;
 
 class SpecFromJsonGenerator implements Stage {
 
-    private static Logger logger = LoggerFactory.getLogger(SpecFromJsonGenerator.class);
+    private static final Logger logger = LoggerFactory.getLogger(SpecFromJsonGenerator.class);
 
     @Override
     public ExecutionContext doWork(ExecutionContext context) throws Exception {

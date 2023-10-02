@@ -10,18 +10,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class PipelineBuilder {
-
-    private static Logger logger = LoggerFactory.getLogger(PipelineBuilder.class);
-
-    private Pipeline builderPipeline;
+public final class PipelineBuilder {
 
     public static PipelineBuilder createBuilder() {
         return new PipelineBuilder();
     }
 
     PipelineBuilder() {
-        builderPipeline = new Pipeline("Builder");
+        Pipeline builderPipeline = new Pipeline("Builder");
         builderPipeline.addStage(new StageWrapper("Spec_Generator_JSON", new SpecFromJsonGenerator())).addStage(new StageWrapper("Spec_Validator", new PipelineSpecValidator())).addStage(new StageWrapper("Pipeline_Generator", new PipelineGenerator()));
     }
 
@@ -32,7 +28,7 @@ public class PipelineBuilder {
         } else if (pathname.contains(".yaml")) {
             fileReaderStage = new StageWrapper("Spec_Generator_YAML", new SpecFromYamlGenerator());
         } else {
-            throw new Exception("Unrecoginized file suffix.  Supported types are .json and .yaml.");
+            throw new Exception("Unrecognized file suffix.  Supported types are .json and .yaml.");
         }
 
         ExecutionContext context = new ExecutionContext();

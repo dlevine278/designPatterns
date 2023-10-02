@@ -5,7 +5,7 @@ import org.jgrapht.graph.DefaultEdge;
 
 class StageWrapper implements Stage {
 
-    private String id = "";
+    private String id;
     private Stage stage;
 
     //ctor
@@ -20,6 +20,7 @@ class StageWrapper implements Stage {
 
     //setters and getters
     void setId(String id) {
+        this.id = id;
     }
 
     String getId() {
@@ -35,17 +36,14 @@ class StageWrapper implements Stage {
     }
 
     // hook to allow the pipeline to do some initialization
-    void init(ExecutionContext context) {}
+    ExecutionContext init(ExecutionContext context) { return context;}
 
     // hook to allow the pipeline to do some cleanup - by default does nothing
-    void close(ExecutionContext context) {}
+    ExecutionContext close(ExecutionContext context) {return context;}
 
     @Override
     public ExecutionContext doWork(ExecutionContext context) throws Exception {
-        init(context);
-        context = stage.doWork(context);
-        close(context);
-        return context;
+        return stage.doWork(context);
     }
 
     String buildGraph(String root, Graph<String, DefaultEdge> pipelineGraph) {
