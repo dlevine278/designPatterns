@@ -16,23 +16,23 @@ class PipelineSpecValidator implements Stage {
                 throw new Exception("The pipeline specification has a null identifier");
             }
 
-            for (PipelineSpecification.StageDefinition stage : spec.getStages()) {
-                if (stage.getId() == null || stage.getId().equals("")) {
+            for (PipelineSpecification.StageDefinition stageDef : spec.getStages()) {
+                if (stageDef.getId() == null || stageDef.getId().equals("")) {
                     throw new Exception("At least one stage definition has a null identifier");
                 }
             }
-            for (PipelineSpecification.ForkDefinition fork : spec.getForks()) {
-                if (fork.getId() == null || fork.getId().equals("")) {
+            for (PipelineSpecification.ForkDefinition forkDef : spec.getForks()) {
+                if (forkDef.getId() == null || forkDef.getId().equals("")) {
                     throw new Exception("At least one fork definition has a null identifier");
                 }
             }
-            for (PipelineSpecification.PipelineDefinition pipeline : spec.getPipelines()) {
-                if (pipeline.getId() == null || pipeline.getId().equals("")) {
+            for (PipelineSpecification.PipelineDefinition pipelineDef : spec.getPipelines()) {
+                if (pipelineDef.getId() == null || pipelineDef.getId().equals("")) {
                     throw new Exception("At least one pipeline definition has a null identifier");
                 }
             }
-            for (PipelineSpecification.StepDefinition step : spec.getSteps()) {
-                if (step.getId() == null || step.getId().equals("")) {
+            for (PipelineSpecification.StepDefinition stepDef : spec.getSteps()) {
+                if (stepDef.getId() == null || stepDef.getId().equals("")) {
                     throw new Exception("At least one step definition has a null identifier");
                 }
             }
@@ -49,19 +49,19 @@ class PipelineSpecValidator implements Stage {
             Set<String> duplicateIds = new HashSet<String>();
             Set<String> ids = new HashSet<String>();
 
-            for (PipelineSpecification.StageDefinition stage : spec.getStages()) {
-                if (!ids.add(stage.getId())) {
-                    duplicateIds.add(stage.getId());
+            for (PipelineSpecification.StageDefinition stageDef : spec.getStages()) {
+                if (!ids.add(stageDef.getId())) {
+                    duplicateIds.add(stageDef.getId());
                 }
             }
-            for (PipelineSpecification.ForkDefinition fork : spec.getForks()) {
-                if (!ids.add(fork.getId())) {
-                    duplicateIds.add(fork.getId());
+            for (PipelineSpecification.ForkDefinition forkDef : spec.getForks()) {
+                if (!ids.add(forkDef.getId())) {
+                    duplicateIds.add(forkDef.getId());
                 }
             }
-            for (PipelineSpecification.PipelineDefinition pipeline : spec.getPipelines()) {
-                if (!ids.add(pipeline.getId())) {
-                    duplicateIds.add(pipeline.getId());
+            for (PipelineSpecification.PipelineDefinition pipelineDef : spec.getPipelines()) {
+                if (!ids.add(pipelineDef.getId())) {
+                    duplicateIds.add(pipelineDef.getId());
                 }
             }
 
@@ -80,9 +80,9 @@ class PipelineSpecValidator implements Stage {
             PipelineSpecification spec = (PipelineSpecification) context.getObject(BuilderContext.PIPELINE_SPEC);
             Set<String> malformedStages = new HashSet<>();
 
-            for (PipelineSpecification.StageDefinition stage : spec.getStages()) {
-                if (stage.getClassName() == null || stage.getClassName().equals("")) {
-                    malformedStages.add(stage.getId());
+            for (PipelineSpecification.StageDefinition stageDef : spec.getStages()) {
+                if (stageDef.getClassName() == null || stageDef.getClassName().equals("")) {
+                    malformedStages.add(stageDef.getId());
                 }
             }
 
@@ -104,14 +104,14 @@ class PipelineSpecValidator implements Stage {
             Set<String> malformedPipelines = new HashSet<>();
             Set<String> ids = new HashSet<>();
 
-            spec.getStages().forEach( stage -> ids.add(stage.getId()));
-            spec.getPipelines().forEach(pipeline -> ids.add(pipeline.getId()));
-            spec.getForks().forEach(forks -> ids.add(forks.getId()));
+            spec.getStages().forEach( stageDef -> ids.add(stageDef.getId()));
+            spec.getPipelines().forEach(pipelineDef -> ids.add(pipelineDef.getId()));
+            spec.getForks().forEach(forkDef -> ids.add(forkDef.getId()));
 
-            for (PipelineSpecification.PipelineDefinition pipeline : spec.getPipelines()) {
-                for (PipelineSpecification.StepDefinition pipelineStep : pipeline.getSteps()) {
-                    if (!ids.contains(pipelineStep.getId())) {
-                        malformedPipelines.add(pipeline.getId());
+            for (PipelineSpecification.PipelineDefinition pipelineDef : spec.getPipelines()) {
+                for (PipelineSpecification.StepDefinition pipelineStepDef : pipelineDef.getSteps()) {
+                    if (!ids.contains(pipelineStepDef.getId())) {
+                        malformedPipelines.add(pipelineDef.getId());
                     }
                 }
             }
@@ -134,14 +134,14 @@ class PipelineSpecValidator implements Stage {
             Set<String> malformedForks = new HashSet<>();
             Set<String> ids = new HashSet<>();
 
-            spec.getStages().forEach( stage -> ids.add(stage.getId()));
-            spec.getPipelines().forEach(pipeline -> ids.add(pipeline.getId()));
-            spec.getForks().forEach(forks -> ids.add(forks.getId()));
+            spec.getStages().forEach( stageDef -> ids.add(stageDef.getId()));
+            spec.getPipelines().forEach(pipelineDef -> ids.add(pipelineDef.getId()));
+            spec.getForks().forEach(forkDef -> ids.add(forkDef.getId()));
 
-            for (PipelineSpecification.ForkDefinition fork : spec.getForks()) {
-                for (PipelineSpecification.PipelineDefinition forkPipeline : fork.getPipelines()) {
+            for (PipelineSpecification.ForkDefinition forkDef : spec.getForks()) {
+                for (PipelineSpecification.PipelineDefinition forkPipeline : forkDef.getPipelines()) {
                     if (!ids.contains(forkPipeline.getId())) {
-                        malformedForks.add(fork.getId());
+                        malformedForks.add(forkDef.getId());
                     }
                 }
             }
@@ -164,13 +164,13 @@ class PipelineSpecValidator implements Stage {
             Set<String> malformedSteps = new HashSet<>();
             Set<String> ids = new HashSet<>();
 
-            spec.getStages().forEach( stage -> ids.add(stage.getId()));
-            spec.getPipelines().forEach(pipeline -> ids.add(pipeline.getId()));
-            spec.getForks().forEach(forks -> ids.add(forks.getId()));
+            spec.getStages().forEach( stageDef -> ids.add(stageDef.getId()));
+            spec.getPipelines().forEach(pipelineDef -> ids.add(pipelineDef.getId()));
+            spec.getForks().forEach(forkDef -> ids.add(forkDef.getId()));
 
-            for (PipelineSpecification.StepDefinition step : spec.getSteps()) {
-                if (!ids.contains(step.getId())) {
-                    malformedSteps.add(step.getId());
+            for (PipelineSpecification.StepDefinition stepDef : spec.getSteps()) {
+                if (!ids.contains(stepDef.getId())) {
+                    malformedSteps.add(stepDef.getId());
                 }
             }
 
