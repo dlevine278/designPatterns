@@ -41,6 +41,7 @@ final class Fork extends StageWrapper { // will change visibility once the build
 
     @Override
     final void init(ExecutionContext context) {
+        setStage(this);
         executorService = Executors.newFixedThreadPool(THREADPOOL_SIZE); // this is what manages the concurrency
     }
 
@@ -55,15 +56,17 @@ final class Fork extends StageWrapper { // will change visibility once the build
     @Override
     public ExecutionContext doWork(ExecutionContext context) throws Exception {
 
-        for(Pipeline forkPipeline : forkPipelines) {
-            forkPipeline.setContext(context);
-        }
+        forkPipelines.forEach(forkPipeline -> forkPipeline.setContext(context));
 
+        List<String> forkPipelineIds = new Vector<>();  // for the event log
+        forkPipelines.forEach( forkPipeline -> forkPipelineIds.add(forkPipeline.getId()));
         try {
+            context.createEvent(this, ExecutionContext.EventType.CALLING_STAGE, "Concurrently invoking : " + forkPipelineIds);
             executorService.invokeAll(forkPipelines);  // execute all the pipelines being forked (order of execution is non-deterministic)
+            context.createEvent(this, ExecutionContext.EventType.CALLED_STAGE, "Concurrently invoked pipelines: " + forkPipelineIds);
         } catch (Exception e) {
-            e.printStackTrace();
             logger.error("Fork execution failed: " + e.getLocalizedMessage());
+            context.createEvent(this, ExecutionContext.EventType.EXCEPTION, "Exception in one of the pipelines belonging to fork " + getId());
             throw new ExecutionException(e);
         }
         return context;
@@ -75,12 +78,9 @@ final class Fork extends StageWrapper { // will change visibility once the build
         String endId = this.getId() + " - [Fork End]";
         pipelineGraph.addVertex(startId);
         pipelineGraph.addVertex(endId);
+
         pipelineGraph.addEdge(root, startId);
-
-        for (Pipeline forkPipeline : forkPipelines) {
-            pipelineGraph.addEdge(forkPipeline.buildGraph(startId, pipelineGraph),endId);
-        }
-
+        forkPipelines.forEach(forkPipeline -> pipelineGraph.addEdge(forkPipeline.buildGraph(startId, pipelineGraph),endId));
         return endId;
     }
 }

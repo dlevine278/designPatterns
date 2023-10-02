@@ -26,20 +26,26 @@ class StageWrapper implements Stage {
         return id;
     }
 
-    String getStageClassName() {
-        return stage.getClass().getCanonicalName();
+    void setStage(Stage stage) {
+        this.stage = stage;
+    }
+
+    Stage getStage() {
+        return stage;
     }
 
     // hook to allow the pipeline to do some initialization
-    void init(ExecutionContext context) {
-    }
+    void init(ExecutionContext context) {}
 
     // hook to allow the pipeline to do some cleanup - by default does nothing
     void close(ExecutionContext context) {}
 
     @Override
     public ExecutionContext doWork(ExecutionContext context) throws Exception {
-        return stage.doWork(context);
+        init(context);
+        context = stage.doWork(context);
+        close(context);
+        return context;
     }
 
     String buildGraph(String root, Graph<String, DefaultEdge> pipelineGraph) {

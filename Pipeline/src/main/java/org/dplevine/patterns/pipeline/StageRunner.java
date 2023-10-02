@@ -14,4 +14,8 @@ public class  StageRunner {
     ExecutionContext run(StageWrapper stage) throws Exception {
         return stage.doWork(context);
     }
+
+    ExecutionContext getContext() {
+        return context;
+    }
 }

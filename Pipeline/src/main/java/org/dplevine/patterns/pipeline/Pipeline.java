@@ -39,10 +39,14 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
         GIF,
     }
 
-
     // ctors
     Pipeline(String id) {
         super(id);
+    }
+
+    Pipeline(String id, List<StageWrapper> stages) {
+        super(id);
+        this.stages.addAll(stages);
     }
 
     Pipeline(String id, boolean fastFail) {
@@ -93,21 +97,37 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
         return stages;
     }
 
+    @Override
+    // StageWrapper
+    void init(ExecutionContext context) {
+        setStage(this);
+    }
 
-    // PipelineStage abstract method
+    @Override
+    // StageWrapper
+    void close(ExecutionContext context) {
+
+    }
+
+    @Override
+    //Stage
     public ExecutionContext doWork(ExecutionContext context) throws Exception {
         // 1. construct the graph
         Graph<StageWrapper, DefaultEdge> pipeline = new DirectedMultigraph<>(DefaultEdge.class);
+
+        // add stages
         for (StageWrapper stage : stages) {
             pipeline.addVertex(stage);
         }
+
+        // we start at index = 1 because the first entry (i.e., index = 0) is the root
         for(Integer i = 1; i < stages.size(); i++) {
             pipeline.addEdge(stages.get(i-1), stages.get(i));
         }
 
-        // 2. make sure the graph is acyclic
+        // 2. make sure this pipeline's graph is acyclic (probably redundant)
         if (new CycleDetector<StageWrapper, DefaultEdge>(pipeline).detectCycles()) {
-            throw new Exception("The pipeline must be acyclic, cycles detected");
+            throw new Exception("The pipeline must be acyclic, cycles detected in pipeline: " + getId());
         }
 
         // 3. traverse the graph and invoke the stages along the way
@@ -117,22 +137,22 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
             StageWrapper stage= iterator.next();
 
             try {
-                context.createEvent(stage, ExecutionContext.EventType.CALLING_STAGE, stage.getStageClassName() + ".doWork()");
-                stage.init(context);
+                stage.init(runner.getContext());
+                runner.getContext().createEvent(stage, ExecutionContext.EventType.CALLING_STAGE, stage.getStage().getClass().getCanonicalName() + ".doWork()");
                 runner.run(stage);
-                stage.close(context);
-                context.createEvent(stage, ExecutionContext.EventType.CALLED_STAGE, stage.getStageClassName() + ".doWork()");
+                stage.close(runner.getContext());
+                runner.getContext().createEvent(stage, ExecutionContext.EventType.CALLED_STAGE, stage.getStage().getClass().getCanonicalName() + ".doWork()");
             } catch (Exception e) {
-                context.createEvent(stage, ExecutionContext.EventType.EXCEPTION, stage.getStageClassName() + e.getLocalizedMessage());
+                runner.getContext().createEvent(stage, ExecutionContext.EventType.EXCEPTION, stage.getStage().getClass().getCanonicalName() + e.getLocalizedMessage());
                 e.printStackTrace();
-                stage.close(context);
+                stage.close(runner.getContext());
                 if (fastFail) {
                     logger.error("stack trace: " + e.getLocalizedMessage());
                     throw new ExecutionException(e);
                 }
             }
         }
-        return context;
+        return runner.getContext();
     }
 
     public final ExecutionContext run() {
@@ -159,11 +179,13 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
 
     // Callable abstract method
     @Override
+    //Callable
     public ExecutionContext call() throws Exception {
         return doWork(context);
     }
 
     @Override
+    //StageWrapper
     String buildGraph(String root, Graph<String, DefaultEdge> pipelineGraph) {
         String startId = this.getId() + " - [Pipeline Start]";
         String endId = this.getId() + " - [Pipeline End]";
