@@ -87,7 +87,7 @@ class PipelineSpecValidator implements Stage {
             }
 
             if (!malformedStages.isEmpty()) {
-                throw new Exception("The following stage definitions are malformed:" + malformedStages);
+                throw new PipelineBuilderException("The following stage definitions are malformed:" + malformedStages);
             }
 
             return context;
@@ -117,7 +117,7 @@ class PipelineSpecValidator implements Stage {
             }
 
             if (!malformedPipelines.isEmpty()) {
-                throw new Exception("The following pipelines contain unresolved references:" + malformedPipelines);
+                throw new PipelineBuilderException("The following pipelines contain unresolved references:" + malformedPipelines);
             }
 
             return context;
@@ -139,7 +139,7 @@ class PipelineSpecValidator implements Stage {
             spec.getForks().forEach(forkDef -> ids.add(forkDef.getId()));
 
             for (PipelineSpecification.ForkDefinition forkDef : spec.getForks()) {
-                for (PipelineSpecification.PipelineDefinition forkPipeline : forkDef.getPipelines()) {
+                for (PipelineSpecification.PipelineDefinition forkPipeline : forkDef.getSubPipelines()) {
                     if (!ids.contains(forkPipeline.getId())) {
                         malformedForks.add(forkDef.getId());
                     }
@@ -147,7 +147,7 @@ class PipelineSpecValidator implements Stage {
             }
 
             if (!malformedForks.isEmpty()) {
-                throw new Exception("The following forks contain unresolved references:" + malformedForks);
+                throw new PipelineBuilderException("The following forks contain unresolved references:" + malformedForks);
             }
 
             return context;
@@ -175,7 +175,7 @@ class PipelineSpecValidator implements Stage {
             }
 
             if (!malformedSteps.isEmpty()) {
-                throw new Exception("The following steps definitions are unresolved:" + malformedSteps);
+                throw new PipelineBuilderException("The following steps definitions are unresolved:" + malformedSteps);
             }
 
             return context;
@@ -198,7 +198,7 @@ class PipelineSpecValidator implements Stage {
         context = validateSpecPipeline.run(context);
 
         if (context.isFailure()) {
-            throw new Exception ("The pipeline specification is malformed, please correct: " + context.getEventLog().toString());
+            throw new PipelineBuilderException ("The pipeline specification is malformed, please correct: " + context.getEventLog().toString());
         }
 
         return context;

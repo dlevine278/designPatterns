@@ -15,11 +15,11 @@ public final class PipelineSpecification {
     @JsonProperty
     private List<ForkDefinition> forks = new Vector<>();
     @JsonProperty
-    private List<PipelineDefinition> pipelines = new Vector<>();
-    @JsonProperty
     private List<StepDefinition> steps = new Vector<>();
     @JsonProperty
     private Boolean fastFail = true;  //true by default
+
+    private List<PipelineDefinition> pipelines = new Vector<>();
 
 
 
@@ -131,35 +131,37 @@ public final class PipelineSpecification {
         @JsonProperty
         private String id;
         @JsonProperty
-        private List<PipelineDefinition> pipelines;
+        private List<PipelineDefinition> subPipelines = new Vector<>();
 
         public ForkDefinition() {
         }
 
-        public ForkDefinition(String id, List<PipelineDefinition> pipelines) {
+        public ForkDefinition(String id, List<PipelineDefinition> subPipelines) {
             this.id = id;
-            this.pipelines.addAll(pipelines);
+            setSubPipelines(subPipelines);
         }
 
         public void setId(String id) {
             this.id = id;
         }
 
-        public void setPipelines(List<PipelineDefinition> pipelines) {
-            this.pipelines = pipelines;
+        public void setSubPipelines(List<PipelineDefinition> subPipelines) {
+            for( int i = 0; i < subPipelines.size(); i++) {
+                subPipelines.get(i).setId(id + "[" + this.subPipelines.size() + "]");
+                this.subPipelines.add(subPipelines.get(i));
+            }
         }
 
         public String getId() {
             return id;
         }
 
-        public List<PipelineDefinition> getPipelines() {
-            return pipelines;
+        public List<PipelineDefinition> getSubPipelines() {
+            return subPipelines;
         }
     }
 
     public static class PipelineDefinition {
-        @JsonProperty
         private String id;
         @JsonProperty
         private List<StepDefinition> steps;
@@ -227,6 +229,8 @@ public final class PipelineSpecification {
     }
 
     public List<PipelineDefinition> getPipelines() {
+        pipelines.clear();
+        getForks().forEach(fork -> pipelines.addAll(fork.getSubPipelines()));
         return pipelines;
     }
 

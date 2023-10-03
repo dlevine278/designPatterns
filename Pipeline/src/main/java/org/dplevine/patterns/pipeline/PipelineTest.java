@@ -4,15 +4,16 @@ public class PipelineTest implements Stage, StageBuilder {
     static Pipeline pipeline;
 
     public static void main(String args[]) {
+        ExecutionContext context = new ExecutionContext();
         try {
-            pipeline = PipelineBuilder.createBuilder().buildFromPathName("/Users/dplevine/Desktop/example 3.json");
-            ExecutionContext context = new ExecutionContext();
+            pipeline = PipelineBuilder.createBuilder().buildFromPathName("/Users/dplevine/Desktop/improved.json");
             context.addObject("pipeline", pipeline);
             pipeline.run(context);
             pipeline.render("/Users/dplevine/Desktop/example", Pipeline.ImageType.GIF);
             System.out.println(context.getEventLog());
             System.out.println(context.getStatus());
         } catch (Exception e) {
+            context.getExceptionEvents();
             e.printStackTrace();
         }
     }

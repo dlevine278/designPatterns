@@ -87,7 +87,7 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
 
         // 2. make sure this pipeline's graph is acyclic (probably redundant)
         if (new CycleDetector<>(pipeline).detectCycles()) {
-            throw new Exception("The pipeline must be acyclic, cycles detected in pipeline: " + getId());
+            throw new PipelineExecutionException("The pipeline must be acyclic, cycles detected in pipeline: " + getId());
         }
 
         // 3. traverse the graph and invoke the stages along the way
@@ -101,20 +101,20 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
             } catch (Exception e) {
                 if (fastFail) {
                     logger.error("stack trace: " + e.getLocalizedMessage());
-                    throw new ExecutionException(e);
+                    throw new PipelineExecutionException(e);
                 }
             }
         }
         return runner.getContext();
     }
 
-    public final ExecutionContext run() {
+    public final ExecutionContext run() throws Exception {
         ExecutionContext context = new ExecutionContext();
         run(context);
         return context;
     }
 
-    public final ExecutionContext run(ExecutionContext context) {
+    public final ExecutionContext run(ExecutionContext context) throws Exception {
         this.context = context;
         context.setInProgress();
         context.createEvent(this, ExecutionContext.EventType.PIPELINE_IN_PROGRESS, this.getClass().getName() + ".run()");
@@ -122,11 +122,12 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
             context = doWork(context);
             context.setSuccess();
             context.createEvent(this, ExecutionContext.EventType.SUCCESS, this.getClass().getCanonicalName() + ".run()");
-        } catch (Throwable t) {
-            context.createEvent(this, ExecutionContext.EventType.EXCEPTION, t.toString());
+        } catch (Exception e) {
+            context.createEvent(this, ExecutionContext.EventType.EXCEPTION, e.toString());
             context.setFailure();
             context.createEvent(this, ExecutionContext.EventType.FAILURE, this.getClass().getCanonicalName() + ".run()");
             logger.error("Pipeline.run(contex) failed with error: " + context.getEventLog().toString());
+            throw new PipelineExecutionException(e);
         }
         return context;
     }

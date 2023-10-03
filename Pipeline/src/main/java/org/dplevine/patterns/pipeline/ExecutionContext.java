@@ -117,4 +117,32 @@ public class ExecutionContext {
     public Status getStatus() {
         return status;
     }
+
+    public List<Event> getExceptionEvents() {
+        List<Event> filteredEvents = new Vector<>();
+
+        eventLog.stream().filter(event -> event.getEventType() == EventType.EXCEPTION).forEach(event -> filteredEvents.add(event));
+
+        return filteredEvents;
+    }
+
+    public List<Event> getStageEvents(String id) {
+        List<Event> filteredEvents = new Vector<>();
+
+        eventLog.stream().filter(event -> event.getId().equals(id)).forEach(event -> filteredEvents.add(event));
+
+        return filteredEvents;
+    }
+
+    public Event getLastStageEvent(String id) {
+        Event lastEvent = null;
+
+        for (int i = eventLog.size(); i < 0; i--) {
+            if (eventLog.get(i-1).getId().equals(id)) {
+                return eventLog.get(i-1);
+            }
+        }
+
+        return lastEvent;
+    }
 }

@@ -72,7 +72,7 @@ class PipelineGenerator implements Stage {
         // iterate through all the fork definitions
         for(PipelineSpecification.ForkDefinition forkDef : spec.getForks()) {
             String forkStartId = forkDef.getId();
-            for(PipelineSpecification.PipelineDefinition forkPipelineDef : forkDef.getPipelines()) {
+            for(PipelineSpecification.PipelineDefinition forkPipelineDef : forkDef.getSubPipelines()) {
                 pipelineGraph.addEdge(forkStartId, forkPipelineDef.getId());
                 startId = forkPipelineDef.getId();
             }
@@ -90,13 +90,13 @@ class PipelineGenerator implements Stage {
                 Class<?> clazz = appClassLoader.loadClass(className);
                 this.stageBuilder = (StageBuilder) clazz.getDeclaredConstructor().newInstance();
             } catch (Exception e) {
-                throw new Exception("Could not construct a StageBuilder for class: " + className);
+                throw new PipelineBuilderException("Could not construct a StageBuilder for class: " + className);
             }
         }
 
         StageWrapper newStage(String id) throws Exception {
             if (stageBuilder == null) {
-                throw new Exception("No StageBuilder found for: " + id);
+                throw new PipelineBuilderException("No StageBuilder found for: " + id);
             }
             return new StageWrapper(id, stageBuilder.buildStage());
         }
@@ -127,7 +127,7 @@ class PipelineGenerator implements Stage {
         // add the sub-piplines to the forks
         for(PipelineSpecification.ForkDefinition forkDef : spec.getForks()) {
             Fork fork = (Fork) vertices.get(forkDef.getId()).getStage();
-            for(PipelineSpecification.PipelineDefinition forkPipelineDef : forkDef.getPipelines()) {
+            for(PipelineSpecification.PipelineDefinition forkPipelineDef : forkDef.getSubPipelines()) {
                 fork.addPipeline((Pipeline) vertices.get(forkPipelineDef.getId()).getStage());
             }
         }
@@ -146,7 +146,7 @@ class PipelineGenerator implements Stage {
 
         // 1. verify that it is acyclic
         if (isPipelineAcyclic(spec)) {
-            throw new Exception("Pipeline specification is not acyclic, please correct and try again");
+            throw new PipelineBuilderException("Pipeline specification is not acyclic, please correct and try again");
         }
 
         // 2. construct all the vertices (i.e., stages, sub-pipelines, forks) in the spec and build

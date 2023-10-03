@@ -28,7 +28,7 @@ public final class PipelineBuilder {
         } else if (pathname.contains(".yaml")) {
             fileReaderStage = new StageWrapper("Spec_Generator_YAML", new SpecFromYamlGenerator());
         } else {
-            throw new Exception("Unrecognized file suffix.  Supported types are .json and .yaml.");
+            throw new PipelineBuilderException("Unrecognized file suffix.  Supported types are .json and .yaml.");
         }
 
         ExecutionContext context = new ExecutionContext();
@@ -38,7 +38,7 @@ public final class PipelineBuilder {
 
         Pipeline pipeline = (Pipeline) builderPipeline.run(context).getObject(BuilderContext.PIPELINE);
         if (pipeline == null) {
-            throw new Exception("Pipeline could not be generated");
+            throw new PipelineBuilderException("Pipeline could not be generated");
         }
         return pipeline;
     }
@@ -51,7 +51,7 @@ public final class PipelineBuilder {
 
         Pipeline pipeline = (Pipeline) builderPipeline.run(context).getObject(BuilderContext.PIPELINE);
         if (pipeline == null) {
-            throw new Exception("Pipeline could not be generated");
+            throw new PipelineBuilderException("Pipeline could not be generated");
         }
         return pipeline;
     }

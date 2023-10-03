@@ -66,7 +66,7 @@ final class Fork extends StageWrapper { // will change visibility once the build
         } catch (Exception e) {
             logger.error("Fork execution failed: " + e.getLocalizedMessage());
             context.createEvent(this, ExecutionContext.EventType.EXCEPTION, "Exception in one of the pipelines belonging to fork " + getId());
-            throw new ExecutionException(e);
+            throw new PipelineExecutionException(e);
         }
         return context;
     }

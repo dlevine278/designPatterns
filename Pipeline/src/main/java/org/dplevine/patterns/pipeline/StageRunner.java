@@ -17,7 +17,7 @@ public class  StageRunner {
         } catch (Exception e) {
             context.createEvent(stageWrapper, ExecutionContext.EventType.EXCEPTION, stageWrapper.getStage().getClass().getCanonicalName() + e.getLocalizedMessage());
             stageWrapper.close(context);
-            throw e;
+            throw new PipelineExecutionException(e);
         }
         return context;
     }

@@ -22,6 +22,7 @@ class SpecFromJsonGenerator implements Stage {
         } catch (Exception e) {
             logger.error("stack trace:" + e.getLocalizedMessage());
             logger.error("pipeline event log:" + context.getEventLog().toString());
+            throw new PipelineBuilderException(e);
         }
         return context;
     }

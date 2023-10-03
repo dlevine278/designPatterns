@@ -9,6 +9,7 @@ public class PipelineException extends Exception {
     }
 
     public PipelineException(Exception exception) {
+        super(exception.getMessage());
         this.exception = exception;
     }
 
