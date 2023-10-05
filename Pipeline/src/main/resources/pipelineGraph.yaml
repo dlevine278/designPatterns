@@ -1,0 +1,37 @@
+---
+id: pipeline graph pipeline
+fastFail: false
+stages:
+  - id: stage 0
+    className: org.dplevine.patterns.pipeline.examples.graph.PipelineGraph$TimerStage
+  - id: stage 1
+    className: org.dplevine.patterns.pipeline.examples.graph.PipelineGraph$TimerStage
+  - id: stage 2
+    className: org.dplevine.patterns.pipeline.examples.graph.PipelineGraph$TimerStage
+  - id: stage 3
+    className: org.dplevine.patterns.pipeline.examples.graph.PipelineGraph$TimerStage
+  - id: stage 4
+    className: org.dplevine.patterns.pipeline.examples.graph.PipelineGraph$TimerStage
+  - id: stage 5
+    className: org.dplevine.patterns.pipeline.examples.graph.PipelineGraph$TimerStage
+  - id: stage 6
+    className: org.dplevine.patterns.pipeline.examples.graph.PipelineGraph$TimerStage
+parallels:
+  - id: parallel 1
+    parallelPipelines:
+      - steps:
+          - stage 4
+          - stage 6
+      - steps:
+          - stage 3
+  - id: parallel 2
+    parallelPipelines:
+      - steps:
+          - stage 1
+      - steps:
+          - stage 2
+steps:
+  - stage 0
+  - parallel 1
+  - parallel 2
+  - stage 5

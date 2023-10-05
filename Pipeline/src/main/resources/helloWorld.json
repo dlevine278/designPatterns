@@ -4,12 +4,10 @@
   "stages" : [
     {
       "id" : "hello",
-      "classPath" : "",
       "className" : "org.dplevine.patterns.pipeline.examples.json.JsonExample$Hello"
     },
     {
       "id" : "world",
-      "classPath" : "",
       "className" : "org.dplevine.patterns.pipeline.examples.json.JsonExample$World"
     }
   ],

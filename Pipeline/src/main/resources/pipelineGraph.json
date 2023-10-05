@@ -1,46 +1,39 @@
 {
   "id" : "pipeline graph pipeline",
-  "fastFail" : true,
+  "fastFail" : false,
   "stages" : [
     {
       "id" : "stage 0",
-      "classPath" : "",
       "className" : "org.dplevine.patterns.pipeline.examples.graph.PipelineGraph$TimerStage"
     },
     {
       "id" : "stage 1",
-      "classPath" : "",
       "className" : "org.dplevine.patterns.pipeline.examples.graph.PipelineGraph$TimerStage"
     },
     {
       "id" : "stage 2",
-      "classPath" : "",
       "className" : "org.dplevine.patterns.pipeline.examples.graph.PipelineGraph$TimerStage"
     },
     {
       "id" : "stage 3",
-      "classPath" : "",
       "className" : "org.dplevine.patterns.pipeline.examples.graph.PipelineGraph$TimerStage"
     },
     {
       "id" : "stage 4",
-      "classPath" : "",
       "className" : "org.dplevine.patterns.pipeline.examples.graph.PipelineGraph$TimerStage"
     },
     {
       "id" : "stage 5",
-      "classPath" : "",
       "className" : "org.dplevine.patterns.pipeline.examples.graph.PipelineGraph$TimerStage"
     },
     {
       "id" : "stage 6",
-      "classPath" : "",
       "className" : "org.dplevine.patterns.pipeline.examples.graph.PipelineGraph$TimerStage"
     }
   ],
   "parallels" : [
     {
-      "id" :"pipeline 1",
+      "id" :"parallel 1",
       "parallelPipelines" : [
         {
           "steps" : [
@@ -56,7 +49,7 @@
       ]
     },
     {
-      "id" :"pipeline 2",
+      "id" :"parallel 2",
       "parallelPipelines" : [
         {
           "steps" : [
@@ -73,8 +66,8 @@
   ],
   "steps" : [
     "stage 0",
-    "pipeline 1",
-    "pipeline 2",
+    "parallel 1",
+    "parallel 2",
     "stage 5"
   ]
 }

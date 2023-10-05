@@ -71,8 +71,8 @@ public class HelloWorld {
         PipelineSpecification spec = new PipelineSpecification();
         spec.setId("HelloWorld Example");
 
-        PipelineSpecification.StageDefinition stage1 = new PipelineSpecification.StageDefinition("stage 1", "", Hello.class.getName());
-        PipelineSpecification.StageDefinition stage2 = new PipelineSpecification.StageDefinition("stage 2", "", World.class.getName());
+        PipelineSpecification.StageDefinition stage1 = new PipelineSpecification.StageDefinition("stage 1", Hello.class.getName());
+        PipelineSpecification.StageDefinition stage2 = new PipelineSpecification.StageDefinition("stage 2", World.class.getName());
         spec.setStages(new ArrayList<>(Arrays.asList(stage1, stage2)));
         spec.setSteps(new ArrayList<>(Arrays.asList("stage 1", "stage 2")));
 

@@ -6,9 +6,9 @@ import java.net.URL;
 
 public class PipelineGraph {
 
-    static final String PIPLINE_GRAPH = "/pipelineGraph.json";
+    static final String PIPLINE_GRAPH = "/pipelineGraph.yaml";
 
-    static final Long MAX_DELAY = 20L;
+    static final Long MAX_DELAY = 15L;
     static final String GRAPH_PATHNAME = "/tmp/pipelinegraph";
     static final Pipeline.ImageType GRAPH_TYPE = Pipeline.ImageType.GIF;
 
@@ -71,8 +71,8 @@ public class PipelineGraph {
         Thread renderer = new Thread(() -> {
             try {
                 do {
-                    Thread.sleep(2000);
                     pipeline.render(GRAPH_PATHNAME, GRAPH_TYPE);
+                    Thread.sleep(2000);
                 } while (context.isUndefined() || context.isInProgress());
             } catch (Exception e) {
                 e.getMessage();
@@ -81,5 +81,6 @@ public class PipelineGraph {
         renderer.start();
 
         pipeline.run(context);
+        pipeline.render(GRAPH_PATHNAME, GRAPH_TYPE);
     }
 }

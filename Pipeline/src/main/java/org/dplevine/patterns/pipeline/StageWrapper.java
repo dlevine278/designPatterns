@@ -38,10 +38,10 @@ class StageWrapper implements Stage {
     }
 
     // hook to allow the pipeline to do some initialization
-    ExecutionContext init(ExecutionContext context) { return context;}
+    ExecutionContext init(ExecutionContext context) throws Exception { return context;}
 
     // hook to allow the pipeline to do some cleanup - by default does nothing
-    ExecutionContext close(ExecutionContext context) {return context;}
+    ExecutionContext close(ExecutionContext context) throws Exception {return context;}
 
     @Override
     public ExecutionContext doWork(ExecutionContext context) throws Exception {

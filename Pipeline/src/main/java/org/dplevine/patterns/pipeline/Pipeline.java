@@ -63,14 +63,14 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
 
     @Override
     // StageWrapper
-    final ExecutionContext init(ExecutionContext context) {
+    final ExecutionContext init(ExecutionContext context) throws Exception {
         setStage(this);
         return context;
     }
 
     @Override
     // StageWrapper
-    final ExecutionContext close(ExecutionContext context) {
+    final ExecutionContext close(ExecutionContext context) throws Exception {
         return context;
     }
 

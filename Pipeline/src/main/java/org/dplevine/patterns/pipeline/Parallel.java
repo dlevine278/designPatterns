@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 final class Parallel extends StageWrapper { // will change visibility once the builder is complete
     private final int THREADPOOL_SIZE = 10;  // size of threadpool = number of concurrent pipelines that can run at any given time
@@ -16,12 +17,15 @@ final class Parallel extends StageWrapper { // will change visibility once the b
     private final String PARALLEL_END_TAG = " - </Parallel>";
 
     private ExecutorService executorService;
+    private List<Future<ExecutionContext>> futures;
     private static final Logger logger = LoggerFactory.getLogger(Parallel.class);
     private final List<Pipeline> parallelPipelines = new Vector<>();
+    private Boolean fastFail = true; // true by default
 
     //ctors
-    Parallel(String id) {
+    Parallel(String id, Boolean fastFail) {
         super(id);
+        this.fastFail = fastFail;
     }
 
     Parallel addPipeline(Pipeline parallelPipeline) {
@@ -36,15 +40,21 @@ final class Parallel extends StageWrapper { // will change visibility once the b
     }
 
     @Override
-    final ExecutionContext init(ExecutionContext context) {
+    final ExecutionContext init(ExecutionContext context) throws Exception {
         setStage(this);
+        futures = null;
         executorService = Executors.newFixedThreadPool(THREADPOOL_SIZE); // this is what manages the concurrency
         return context;
     }
 
     @Override
-    final ExecutionContext close(ExecutionContext context) {
+    final ExecutionContext close(ExecutionContext context) throws Exception {
         executorService.shutdown();  // clean up all the threads (after execution has completed)
+        if (fastFail) {
+            for (Future<ExecutionContext> future : futures) {
+                future.get();  // may throw if the pipeline threw
+            }
+        }
         return context;
     }
 
@@ -60,7 +70,7 @@ final class Parallel extends StageWrapper { // will change visibility once the b
         parallelPipelines.forEach( parallelPipeline -> parallelPipelineIds.add(parallelPipeline.getId()));
         try {
             context.createEvent(this, ExecutionContext.EventType.CALLING_STAGE, "Concurrently invoking : " + parallelPipelineIds);
-            executorService.invokeAll(parallelPipelines);  // execute all the pipelines being ran in parallel (order of execution is non-deterministic)
+            List<Future<ExecutionContext>> future = executorService.invokeAll(parallelPipelines);  // execute all the pipelines being ran in parallel (order of execution is non-deterministic)
             context.createEvent(this, ExecutionContext.EventType.CALLED_STAGE, "Concurrently invoked pipelines: " + parallelPipelineIds);
         } catch (Exception e) {
             logger.error("Parallel execution failed: " + e.getLocalizedMessage());

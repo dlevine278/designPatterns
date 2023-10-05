@@ -88,26 +88,19 @@ public final class PipelineSpecification {
     public static class StageDefinition {
         @JsonProperty(required = true)
         private String id;
-        @JsonProperty
-        private String classPath;
         @JsonProperty(required = true)
         private String className;
 
         public StageDefinition() {
         }
 
-        public StageDefinition(String id, String classPath, String className){
+        public StageDefinition(String id, String className){
             this.id = id;
-            this.classPath = classPath;
             this.className = className;
         }
 
         public void setId(String id) {
             this.id = id;
-        }
-
-        public void setClassPath(String classPath) {
-            this.classPath = classPath;
         }
 
         public void setClassName(String className) {
@@ -116,10 +109,6 @@ public final class PipelineSpecification {
 
         public String getId() {
             return id;
-        }
-
-        public String getClassPath() {
-            return classPath;
         }
 
         public String getClassName() {
