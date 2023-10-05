@@ -7,32 +7,31 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Vector;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-final class Fork extends StageWrapper { // will change visibility once the builder is complete
+final class Parallel extends StageWrapper { // will change visibility once the builder is complete
     private final int THREADPOOL_SIZE = 10;  // size of threadpool = number of concurrent pipelines that can run at any given time
-    private final String FORK_START_TAG  = " - <Fork>";
-    private final String FORK_END_TAG = " - </Fork>";
+    private final String PARALLEL_START_TAG  = " - <Parallel>";
+    private final String PARALLEL_END_TAG = " - </Parallel>";
 
     private ExecutorService executorService;
-    private static final Logger logger = LoggerFactory.getLogger(Fork.class);
-    private final List<Pipeline> forkPipelines = new Vector<>();
+    private static final Logger logger = LoggerFactory.getLogger(Parallel.class);
+    private final List<Pipeline> parallelPipelines = new Vector<>();
 
     //ctors
-    Fork(String id) {
+    Parallel(String id) {
         super(id);
     }
 
-    Fork addPipeline(Pipeline forkPipeline) {
-        forkPipelines.add(forkPipeline);
+    Parallel addPipeline(Pipeline parallelPipeline) {
+        parallelPipelines.add(parallelPipeline);
         return this;
     }
 
     // or we can add lists stages
-    Fork addPipelines(List<Pipeline> forkPipelines) {
-        this.forkPipelines.addAll(forkPipelines);
+    Parallel addPipelines(List<Pipeline> parallelPipelines) {
+        this.parallelPipelines.addAll(parallelPipelines);
         return this;
     }
 
@@ -55,17 +54,17 @@ final class Fork extends StageWrapper { // will change visibility once the build
     @Override
     public ExecutionContext doWork(ExecutionContext context) throws Exception {
 
-        forkPipelines.forEach(forkPipeline -> forkPipeline.setContext(context));
+        parallelPipelines.forEach(parallelPipeline -> parallelPipeline.setContext(context));
 
-        List<String> forkPipelineIds = new Vector<>();  // for the event log
-        forkPipelines.forEach( forkPipeline -> forkPipelineIds.add(forkPipeline.getId()));
+        List<String> parallelPipelineIds = new Vector<>();  // for the event log
+        parallelPipelines.forEach( parallelPipeline -> parallelPipelineIds.add(parallelPipeline.getId()));
         try {
-            context.createEvent(this, ExecutionContext.EventType.CALLING_STAGE, "Concurrently invoking : " + forkPipelineIds);
-            executorService.invokeAll(forkPipelines);  // execute all the pipelines being forked (order of execution is non-deterministic)
-            context.createEvent(this, ExecutionContext.EventType.CALLED_STAGE, "Concurrently invoked pipelines: " + forkPipelineIds);
+            context.createEvent(this, ExecutionContext.EventType.CALLING_STAGE, "Concurrently invoking : " + parallelPipelineIds);
+            executorService.invokeAll(parallelPipelines);  // execute all the pipelines being ran in parallel (order of execution is non-deterministic)
+            context.createEvent(this, ExecutionContext.EventType.CALLED_STAGE, "Concurrently invoked pipelines: " + parallelPipelineIds);
         } catch (Exception e) {
-            logger.error("Fork execution failed: " + e.getLocalizedMessage());
-            context.createEvent(this, ExecutionContext.EventType.EXCEPTION, "Exception in one of the pipelines belonging to fork " + getId());
+            logger.error("Parallel execution failed: " + e.getLocalizedMessage());
+            context.createEvent(this, ExecutionContext.EventType.EXCEPTION, "Exception in one of the pipelines belonging to parallel " + getId());
             throw new PipelineExecutionException(e);
         }
         return context;
@@ -73,13 +72,13 @@ final class Fork extends StageWrapper { // will change visibility once the build
 
     @Override
     String buildGraph(String root, Graph<String, DefaultEdge> pipelineGraph) {
-        String startId = this.getId() + FORK_START_TAG;
-        String endId = this.getId() + FORK_END_TAG;
+        String startId = this.getId() + PARALLEL_START_TAG;
+        String endId = this.getId() + PARALLEL_END_TAG;
         pipelineGraph.addVertex(startId);
         pipelineGraph.addVertex(endId);
 
         pipelineGraph.addEdge(root, startId);
-        forkPipelines.forEach(forkPipeline -> pipelineGraph.addEdge(forkPipeline.buildGraph(startId, pipelineGraph),endId));
+        parallelPipelines.forEach(parallelPipeline -> pipelineGraph.addEdge(parallelPipeline.buildGraph(startId, pipelineGraph),endId));
         return endId;
     }
 }

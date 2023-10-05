@@ -6,16 +6,16 @@ import java.util.Vector;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public final class PipelineSpecification {
-    @JsonProperty
+    @JsonProperty(required = true)
     private String id;
     @JsonProperty
     private List<OptionDefinition> options = new Vector<>();
     @JsonProperty
     private List<StageDefinition> stages = new Vector<>();
     @JsonProperty
-    private List<ForkDefinition> forks = new Vector<>();
-    @JsonProperty
-    private List<StepDefinition> steps = new Vector<>();
+    private List<ParallelDefinition> parallels = new Vector<>();
+    @JsonProperty(required = true)
+    private List<String> steps = new Vector<>();
     @JsonProperty
     private Boolean fastFail = true;  //true by default
 
@@ -26,21 +26,21 @@ public final class PipelineSpecification {
     public PipelineSpecification() {
     }
 
-    PipelineSpecification(String id, List<OptionDefinition> options, List<StageDefinition> stages, List<PipelineDefinition> pipelines, List<ForkDefinition> forks, List<StepDefinition> steps) {
+    PipelineSpecification(String id, List<OptionDefinition> options, List<StageDefinition> stages, List<PipelineDefinition> pipelines, List<ParallelDefinition> parallels, List<String> steps) {
         this.id = id;
         this.options.addAll(options);
         this.stages.addAll(stages);
         this.pipelines.addAll(pipelines);
-        this.forks.addAll(forks);
+        this.parallels.addAll(parallels);
         this.steps.addAll(steps);
     }
 
     public static class OptionDefinition {
-        @JsonProperty
+        @JsonProperty(required = true)
         private String name;
-        @JsonProperty
+        @JsonProperty(required = true)
         private OptionType type;
-        @JsonProperty
+        @JsonProperty(required = true)
         private String value;
 
         public OptionDefinition() {
@@ -86,11 +86,11 @@ public final class PipelineSpecification {
     }
 
     public static class StageDefinition {
-        @JsonProperty
+        @JsonProperty(required = true)
         private String id;
         @JsonProperty
         private String classPath;
-        @JsonProperty
+        @JsonProperty(required = true)
         private String className;
 
         public StageDefinition() {
@@ -127,28 +127,28 @@ public final class PipelineSpecification {
         }
     }
 
-    public static class ForkDefinition {
-        @JsonProperty
+    public static class ParallelDefinition {
+        @JsonProperty(required = true)
         private String id;
-        @JsonProperty
-        private List<PipelineDefinition> subPipelines = new Vector<>();
+        @JsonProperty(required = true)
+        private List<PipelineDefinition> parallelPipelines = new Vector<>();
 
-        public ForkDefinition() {
+        public ParallelDefinition() {
         }
 
-        public ForkDefinition(String id, List<PipelineDefinition> subPipelines) {
+        public ParallelDefinition(String id, List<PipelineDefinition> parallelPipelines) {
             this.id = id;
-            setSubPipelines(subPipelines);
+            setParallelPipelines(parallelPipelines);
         }
 
         public void setId(String id) {
             this.id = id;
         }
 
-        public void setSubPipelines(List<PipelineDefinition> subPipelines) {
-            for( int i = 0; i < subPipelines.size(); i++) {
-                subPipelines.get(i).setId(id + "[" + this.subPipelines.size() + "]");
-                this.subPipelines.add(subPipelines.get(i));
+        public void setParallelPipelines(List<PipelineDefinition> parallelPipelines) {
+            for( int i = 0; i < parallelPipelines.size(); i++) {
+                parallelPipelines.get(i).setId(id + "[" + this.parallelPipelines.size() + "]");
+                this.parallelPipelines.add(parallelPipelines.get(i));
             }
         }
 
@@ -156,20 +156,20 @@ public final class PipelineSpecification {
             return id;
         }
 
-        public List<PipelineDefinition> getSubPipelines() {
-            return subPipelines;
+        public List<PipelineDefinition> getParallelPipelines() {
+            return parallelPipelines;
         }
     }
 
     public static class PipelineDefinition {
         private String id;
-        @JsonProperty
-        private List<StepDefinition> steps;
+        @JsonProperty(required = true)
+        private List<String> steps;
 
         public PipelineDefinition() {
         }
 
-        public PipelineDefinition(String id, List<StepDefinition> steps) {
+        public PipelineDefinition(String id, List<String> steps) {
             this.id = id;
             this.steps.addAll(steps);
         }
@@ -178,7 +178,7 @@ public final class PipelineSpecification {
             this.id = id;
         }
 
-        public void setSteps(List<StepDefinition> steps) {
+        public void setSteps(List<String> steps) {
             this.steps = steps;
         }
 
@@ -186,30 +186,9 @@ public final class PipelineSpecification {
             return id;
         }
 
-        public List<StepDefinition> getSteps() {
+        public List<String> getSteps() {
             return steps;
         }
-    }
-
-    public static class StepDefinition {
-        @JsonProperty
-        private String id;
-
-        public StepDefinition() {
-        }
-
-        public StepDefinition(String id) {
-            this.id = id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
-
-        public String getId() {
-            return id;
-        }
-
     }
 
     public String getId() {
@@ -224,17 +203,18 @@ public final class PipelineSpecification {
         return stages;
     }
 
-    public List<ForkDefinition> getForks() {
-        return forks;
+    public List<ParallelDefinition> getParallels() {
+        return parallels;
     }
 
     public List<PipelineDefinition> getPipelines() {
         pipelines.clear();
-        getForks().forEach(fork -> pipelines.addAll(fork.getSubPipelines()));
+        
+        getParallels().forEach(parallel -> pipelines.addAll(parallel.getParallelPipelines()));
         return pipelines;
     }
 
-    public List<StepDefinition> getSteps() {
+    public List<String> getSteps() {
         return steps;
     }
 
@@ -254,15 +234,15 @@ public final class PipelineSpecification {
         this.stages = stages;
     }
 
-    public void setForks(List<ForkDefinition> forks) {
-        this.forks = forks;
+    public void setParallels(List<ParallelDefinition> parallels) {
+        this.parallels = parallels;
     }
 
     public void setPipelines(List<PipelineDefinition> pipelines) {
         this.pipelines = pipelines;
     }
 
-    public void setSteps(List<StepDefinition> steps) {
+    public void setSteps(List<String> steps) {
         this.steps = steps;
     }
 

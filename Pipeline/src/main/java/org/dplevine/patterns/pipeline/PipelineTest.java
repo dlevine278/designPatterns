@@ -6,7 +6,7 @@ public class PipelineTest implements Stage, StageBuilder {
     public static void main(String args[]) {
         ExecutionContext context = new ExecutionContext();
         try {
-            pipeline = PipelineBuilder.createBuilder().buildFromPathName("/Users/dplevine/Desktop/improved.json");
+            pipeline = PipelineBuilder.createBuilder().buildFromPathName("/Users/dplevine/Desktop/improved.yaml");
             context.addObject("pipeline", pipeline);
             pipeline.run(context);
             pipeline.render("/Users/dplevine/Desktop/example", Pipeline.ImageType.GIF);

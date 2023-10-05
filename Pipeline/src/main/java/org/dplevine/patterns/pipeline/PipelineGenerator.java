@@ -12,7 +12,7 @@ class PipelineGenerator implements Stage {
     private enum StageType {
         Simple,
         Pipeline,
-        Fork,
+        Parallel,
     }
 
     private static class PipelineVertex {
@@ -51,30 +51,30 @@ class PipelineGenerator implements Stage {
         pipelineGraph.addVertex(spec.getId());
         spec.getStages().forEach(stageDef -> pipelineGraph.addVertex(stageDef.getId()));
         spec.getPipelines().forEach(pipelineDef -> pipelineGraph.addVertex(pipelineDef.getId()));
-        spec.getForks().forEach(forkDef -> pipelineGraph.addVertex(forkDef.getId()));
+        spec.getParallels().forEach(parallelDef -> pipelineGraph.addVertex(parallelDef.getId()));
 
         // start at the pipeline root and iterate through  all the steps definitions
         String startId = spec.getId();
-        for(PipelineSpecification.StepDefinition stepDef : spec.getSteps()) {
-            pipelineGraph.addEdge(startId, stepDef.getId());
-            startId = stepDef.getId();
+        for(String stepDef : spec.getSteps()) {
+            pipelineGraph.addEdge(startId, stepDef);
+            startId = stepDef;
         }
 
-        // iterate through all the sub-pipeline (forkPipelines) definitions
+        // iterate through all the sub-pipeline (parallelPipelines) definitions
         for(PipelineSpecification.PipelineDefinition pipelineDef : spec.getPipelines()) {
             String subPipelineStartId = pipelineDef.getId();
-            for(PipelineSpecification.StepDefinition stepDef : pipelineDef.getSteps()) {
-                pipelineGraph.addEdge(subPipelineStartId, stepDef.getId());
-                startId = stepDef.getId();
+            for(String stepDef : pipelineDef.getSteps()) {
+                pipelineGraph.addEdge(subPipelineStartId, stepDef);
+                startId = stepDef;
             }
         }
 
-        // iterate through all the fork definitions
-        for(PipelineSpecification.ForkDefinition forkDef : spec.getForks()) {
-            String forkStartId = forkDef.getId();
-            for(PipelineSpecification.PipelineDefinition forkPipelineDef : forkDef.getSubPipelines()) {
-                pipelineGraph.addEdge(forkStartId, forkPipelineDef.getId());
-                startId = forkPipelineDef.getId();
+        // iterate through all the parallel definitions
+        for(PipelineSpecification.ParallelDefinition parallelDef : spec.getParallels()) {
+            String parallelStartId = parallelDef.getId();
+            for(PipelineSpecification.PipelineDefinition parallelPipelineDef : parallelDef.getParallelPipelines()) {
+                pipelineGraph.addEdge(parallelStartId, parallelPipelineDef.getId());
+                startId = parallelPipelineDef.getId();
             }
         }
 
@@ -113,22 +113,22 @@ class PipelineGenerator implements Stage {
         for (PipelineSpecification.StageDefinition stageDef : spec.getStages()) {
             vertices.put(stageDef.getId(), new PipelineVertex(stageDef.getId(), new SimpleStageBuilder(stageDef.getClassPath(), stageDef.getClassName()).newStage(stageDef.getId()), StageType.Simple));
         }
-        spec.getPipelines().forEach(pipelineDef -> vertices.put(pipelineDef.getId(),  new PipelineVertex(pipelineDef.getId(), new Pipeline(pipelineDef.getId()), StageType.Pipeline)));
-        spec.getForks().forEach(forkDef -> vertices.put(forkDef.getId(), new PipelineVertex(forkDef.getId(), new Fork(forkDef.getId()), StageType.Fork)));
+        spec.getPipelines().forEach(pipelineDef -> vertices.put(pipelineDef.getId(),  new PipelineVertex(pipelineDef.getId(), new Pipeline(pipelineDef.getId(), spec.getFastFail()), StageType.Pipeline)));
+        spec.getParallels().forEach(parallelDef -> vertices.put(parallelDef.getId(), new PipelineVertex(parallelDef.getId(), new Parallel(parallelDef.getId()), StageType.Parallel)));
 
         // add the stages to the sub-piplines
         for(PipelineSpecification.PipelineDefinition pipelineDef : spec.getPipelines()) {
             Pipeline pipeline = (Pipeline) vertices.get(pipelineDef.getId()).getStage();
-            for(PipelineSpecification.StepDefinition stepDef : pipelineDef.getSteps()) {
-                pipeline.addStage(vertices.get(stepDef.getId()).getStage());
+            for(String stepDef : pipelineDef.getSteps()) {
+                pipeline.addStage(vertices.get(stepDef).getStage());
             }
         }
 
-        // add the sub-piplines to the forks
-        for(PipelineSpecification.ForkDefinition forkDef : spec.getForks()) {
-            Fork fork = (Fork) vertices.get(forkDef.getId()).getStage();
-            for(PipelineSpecification.PipelineDefinition forkPipelineDef : forkDef.getSubPipelines()) {
-                fork.addPipeline((Pipeline) vertices.get(forkPipelineDef.getId()).getStage());
+        // add the sub-piplines to the parallels
+        for(PipelineSpecification.ParallelDefinition parallelDef : spec.getParallels()) {
+            Parallel parallel = (Parallel) vertices.get(parallelDef.getId()).getStage();
+            for(PipelineSpecification.PipelineDefinition parallelPipelineDef : parallelDef.getParallelPipelines()) {
+                parallel.addPipeline((Pipeline) vertices.get(parallelPipelineDef.getId()).getStage());
             }
         }
 
@@ -141,7 +141,7 @@ class PipelineGenerator implements Stage {
 
 
         // 0. create an empty pipeline
-        Pipeline pipeline = new Pipeline(spec.getId());
+        Pipeline pipeline = new Pipeline(spec.getId(), spec.getFastFail());
 
 
         // 1. verify that it is acyclic
@@ -149,11 +149,11 @@ class PipelineGenerator implements Stage {
             throw new PipelineBuilderException("Pipeline specification is not acyclic, please correct and try again");
         }
 
-        // 2. construct all the vertices (i.e., stages, sub-pipelines, forks) in the spec and build
+        // 2. construct all the vertices (i.e., stages, parallel-pipelines, parallels) in the spec and build
         Map<String, PipelineVertex> pipelineVertices = generateVertices(spec);
 
         // 3. create and return the pipeline
-        spec.getSteps().forEach(stepDef -> pipeline.addStage(pipelineVertices.get(stepDef.getId()).getStage()));
+        spec.getSteps().forEach(stepDef -> pipeline.addStage(pipelineVertices.get(stepDef).getStage()));
 
         // 4. add the constructed pipeline to the context
         context.addObject(BuilderContext.PIPELINE, pipeline);

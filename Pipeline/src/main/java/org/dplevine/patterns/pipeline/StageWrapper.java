@@ -9,6 +9,8 @@ class StageWrapper implements Stage {
     private Stage stage;
 
     //ctor
+    private StageWrapper() {}
+
     StageWrapper(String id) {
         this.id = id;
     }
