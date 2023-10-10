@@ -19,10 +19,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 public final class Pipeline extends StageWrapper implements Callable<ExecutionContext> {
 
@@ -33,6 +30,7 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
     private List<StageWrapper> stages = new Vector<>();
     private Boolean fastFail = true; // true by default
     private ExecutionContext context = new ExecutionContext();
+    private ExecutorService executorService = null;
 
     public enum ImageType {
         JPEG,
@@ -133,19 +131,31 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
             context.createEvent(this, ExecutionContext.EventType.EXCEPTION, e.toString());
             context.setFailure();
             context.createEvent(this, ExecutionContext.EventType.FAILURE, this.getClass().getCanonicalName() + ".run()");
-            logger.error("Pipeline.run(contex) failed with error: " + context.getEventLog().toString());
+            logger.error("Pipeline.run(context) failed with error: " + context.getEventLog().toString());
             throw new PipelineExecutionException(e);
         }
         return context;
     }
 
-    public final Future<ExecutionContext> runDetached() {
+    public final Future<ExecutionContext> runDetached() throws Exception {
         ExecutionContext context = new ExecutionContext();
         return runDetached(context);
     }
 
-    public final Future<ExecutionContext> runDetached(ExecutionContext context) {
-        return Executors.newFixedThreadPool(1).submit(this);
+    public final Future<ExecutionContext> runDetached(ExecutionContext context) throws Exception {
+        if (executorService != null) {
+            throw new PipelineExecutionException("This pipeline was started but never shutdown; must invoke shutdownDetached() before running again.");
+        }
+        this.setContext(context);
+        executorService = Executors.newFixedThreadPool(1);
+        return executorService.submit(this);
+    }
+
+    public final void shutdownDetached() {
+        if (executorService != null) {
+            executorService.shutdown();
+            executorService = null;
+        }
     }
 
     // Callable abstract method

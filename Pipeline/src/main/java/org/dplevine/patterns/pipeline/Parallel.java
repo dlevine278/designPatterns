@@ -52,7 +52,11 @@ final class Parallel extends StageWrapper { // will change visibility once the b
         executorService.shutdown();  // clean up all the threads (after execution has completed)
         if (fastFail) {
             for (Future<ExecutionContext> future : futures) {
-                future.get();  // will throw if one of the parallel pipelines threw
+                if (future != null) {
+                    future.get();  // will throw if one of the parallel pipelines threw
+                } else {
+                    logger.error("future == null");
+                }
             }
         }
         return context;
@@ -70,7 +74,7 @@ final class Parallel extends StageWrapper { // will change visibility once the b
         parallelPipelines.forEach( parallelPipeline -> parallelPipelineIds.add(parallelPipeline.getId()));
         try {
             context.createEvent(this, ExecutionContext.EventType.CALLING_STAGE, "Concurrently invoking : " + parallelPipelineIds);
-            List<Future<ExecutionContext>> future = executorService.invokeAll(parallelPipelines);  // execute all the pipelines being ran in parallel (order of execution is non-deterministic)
+            futures = executorService.invokeAll(parallelPipelines);  // execute all the pipelines being ran in parallel (order of execution is non-deterministic)
             context.createEvent(this, ExecutionContext.EventType.CALLED_STAGE, "Concurrently invoked pipelines: " + parallelPipelineIds);
         } catch (Exception e) {
             logger.error("Parallel execution failed: " + e.getLocalizedMessage());

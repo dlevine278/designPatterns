@@ -3,12 +3,13 @@ package org.dplevine.patterns.pipeline.examples.graph;
 import org.dplevine.patterns.pipeline.*;
 
 import java.net.URL;
+import java.util.concurrent.Future;
 
 public class PipelineGraph {
 
     static final String PIPLINE_GRAPH = "/pipelineGraph.yaml";
 
-    static final Long MAX_DELAY = 15L;
+    static final Long MAX_DELAY = 10L;
     static final String GRAPH_PATHNAME = "/tmp/pipelinegraph";
     static final Pipeline.ImageType GRAPH_TYPE = Pipeline.ImageType.GIF;
 
@@ -68,19 +69,13 @@ public class PipelineGraph {
         context.setMaxDelay(MAX_DELAY);
         context.setPipeline(pipeline);
 
-        Thread renderer = new Thread(() -> {
-            try {
-                do {
-                    pipeline.render(GRAPH_PATHNAME, GRAPH_TYPE);
-                    Thread.sleep(2000);
-                } while (context.isUndefined() || context.isInProgress());
-            } catch (Exception e) {
-                e.getMessage();
-            }
-        });
-        renderer.start();
+        Future<ExecutionContext> future = pipeline.runDetached(context);
+        while (!future.isDone()) {
+            pipeline.render(GRAPH_PATHNAME, GRAPH_TYPE);
+            Thread.sleep(2000);
+        }
+        pipeline.shutdownDetached();
 
-        pipeline.run(context);
         pipeline.render(GRAPH_PATHNAME, GRAPH_TYPE);
     }
 }
