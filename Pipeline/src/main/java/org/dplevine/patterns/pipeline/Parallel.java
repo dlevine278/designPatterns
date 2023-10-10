@@ -52,11 +52,7 @@ final class Parallel extends StageWrapper { // will change visibility once the b
         executorService.shutdown();  // clean up all the threads (after execution has completed)
         if (fastFail) {
             for (Future<ExecutionContext> future : futures) {
-                if (future != null) {
-                    future.get();  // will throw if one of the parallel pipelines threw
-                } else {
-                    logger.error("future == null");
-                }
+                future.get();  // will throw if one of the parallel pipelines threw
             }
         }
         return context;
