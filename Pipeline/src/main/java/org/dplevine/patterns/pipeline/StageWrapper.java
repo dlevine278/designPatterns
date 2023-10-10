@@ -45,7 +45,10 @@ class StageWrapper implements Stage {
 
     @Override
     public ExecutionContext doWork(ExecutionContext context) throws Exception {
-        return stage.doWork(context);
+        if (stage != null) {  // treat a null stage like a no-op
+            return stage.doWork(context);
+        }
+        return context;
     }
 
     String buildGraph(String root, Graph<String, DefaultEdge> pipelineGraph) {

@@ -21,6 +21,8 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public final class Pipeline extends StageWrapper implements Callable<ExecutionContext> {
 
@@ -135,6 +137,15 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
             throw new PipelineExecutionException(e);
         }
         return context;
+    }
+
+    public final Future<ExecutionContext> runDetached() {
+        ExecutionContext context = new ExecutionContext();
+        return runDetached(context);
+    }
+
+    public final Future<ExecutionContext> runDetached(ExecutionContext context) {
+        return Executors.newFixedThreadPool(1).submit(this);
     }
 
     // Callable abstract method
