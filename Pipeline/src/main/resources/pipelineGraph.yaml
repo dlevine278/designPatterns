@@ -16,6 +16,8 @@ stages:
     className: org.dplevine.patterns.pipeline.examples.graph.PipelineGraph$TimerStage
   - id: stage 6
     className: org.dplevine.patterns.pipeline.examples.graph.PipelineGraph$TimerStage
+  - id: stage 7
+    className: org.dplevine.patterns.pipeline.examples.graph.PipelineGraph$TimerStage
 parallels:
   - id: parallel 1
     parallelPipelines:
@@ -30,6 +32,7 @@ parallels:
           - stage 1
       - steps:
           - stage 2
+          - stage 7
 steps:
   - stage 0
   - parallel 1

@@ -3,10 +3,19 @@ package org.dplevine.patterns.pipeline;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
 
+import java.util.List;
+import java.util.Vector;
+
 class StageWrapper implements Stage {
 
     private String id;
     private Stage stage;
+
+    private List<StageWrapperCallback> initCallbacks = new Vector<>();
+    private List<StageWrapperCallback> closeCallbacks = new Vector<>();
+
+    private List<StageCallback> preStageCallbacks = new Vector<>();
+    private List<StageCallback> postStageCallbacks = new Vector<>();
 
     //ctor
     private StageWrapper() {}
@@ -38,10 +47,28 @@ class StageWrapper implements Stage {
     }
 
     // hook to allow the pipeline to do some initialization
-    ExecutionContext init(ExecutionContext context) throws Exception { return context;}
+    ExecutionContext init(ExecutionContext context) throws Exception {
+        for(StageWrapperCallback callback : initCallbacks) {
+            callback.doWork(this, context);
+        }
+
+        for (StageCallback callback : preStageCallbacks) {
+            callback.doCallback(id, stage, context);
+        }
+
+        return context;}
 
     // hook to allow the pipeline to do some cleanup - by default does nothing
-    ExecutionContext close(ExecutionContext context) throws Exception {return context;}
+    ExecutionContext close(ExecutionContext context) throws Exception {
+        for(StageWrapperCallback callback : closeCallbacks) {
+            callback.doWork(this, context);
+        }
+
+        for (StageCallback callback : postStageCallbacks) {
+            callback.doCallback(id, stage, context);
+        }
+
+        return context;}
 
     @Override
     public ExecutionContext doWork(ExecutionContext context) throws Exception {
@@ -55,5 +82,25 @@ class StageWrapper implements Stage {
         pipelineGraph.addVertex(id);
         pipelineGraph.addEdge(root, id);
         return id;
+    }
+
+    void registerInitCallback(StageWrapperCallback callback) {
+        initCallbacks.add(callback);
+    }
+
+    void registerCloseCallback(StageWrapperCallback callback) {
+        closeCallbacks.add(callback);
+    }
+
+    void registerPreStageCallback(String stageId, StageCallback callback) {
+        if (id.equals(stageId)) {
+            preStageCallbacks.add(callback);
+        }
+    }
+
+    void registerPostStageCallback(String stageId, StageCallback callback) {
+        if (id.equals(stageId)) {
+            postStageCallbacks.add(callback);
+        }
     }
 }

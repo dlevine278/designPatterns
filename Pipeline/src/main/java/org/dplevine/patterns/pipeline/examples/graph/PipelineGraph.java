@@ -9,7 +9,7 @@ public class PipelineGraph {
 
     static final String PIPLINE_GRAPH = "/pipelineGraph.yaml";
 
-    static final Long MAX_DELAY = 10L;
+    static final Long MAX_DELAY = 5L;
     static final String GRAPH_PATHNAME = "/tmp/pipelinegraph";
     static final Pipeline.ImageType GRAPH_TYPE = Pipeline.ImageType.GIF;
 
@@ -69,13 +69,17 @@ public class PipelineGraph {
         context.setMaxDelay(MAX_DELAY);
         context.setPipeline(pipeline);
 
+        pipeline.render(GRAPH_PATHNAME, GRAPH_TYPE);
+        Thread.sleep(2000);
+
         Future<ExecutionContext> future = pipeline.runDetached(context);
         while (!future.isDone()) {
             pipeline.render(GRAPH_PATHNAME, GRAPH_TYPE);
             Thread.sleep(2000);
         }
-        pipeline.shutdownDetached();
 
         pipeline.render(GRAPH_PATHNAME, GRAPH_TYPE);
+
+        System.out.println(context.getEventLog());
     }
 }

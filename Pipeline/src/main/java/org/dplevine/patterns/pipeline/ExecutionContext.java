@@ -3,6 +3,15 @@ package org.dplevine.patterns.pipeline;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+/** Primary data structure (a DTO) that is passed from one stage to another when invoking a pipeline.  This data structure contains
+ * event log which is used exclusively by the framework itself for capturing key events during the invocation of a pipeline.
+ *
+ * Additionally, this data structure also contains a thread safe map (i.e., Map<String, Object>) for use by pipeline stages for passing data between stages.
+ * The key is of type string and the values are of type object.
+ * @author David Levine
+ * @version 1.0
+ * @since 1.0
+ */
 public class ExecutionContext {
 
     private Status status = ExecutionContext.Status.UNDEFINED;
@@ -31,7 +40,7 @@ public class ExecutionContext {
         private final String eventType;
         private final String details;
 
-        public Event(String id, String eventType, String details) {
+        Event(String id, String eventType, String details) {
             this.id = id;
             this.eventType = eventType;
             this.details = details;
@@ -137,12 +146,11 @@ public class ExecutionContext {
     public Event getLastStageEvent(String id) {
         Event lastEvent = null;
 
-        for (int i = eventLog.size(); i < 0; i--) {
+        for (int i = eventLog.size(); i > 0; i--) {
             if (eventLog.get(i-1).getId().equals(id)) {
                 return eventLog.get(i-1);
             }
         }
-
         return lastEvent;
     }
 }

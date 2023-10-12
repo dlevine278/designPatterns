@@ -32,6 +32,34 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
     private ExecutionContext context = new ExecutionContext();
     private ExecutorService executorService = null;
 
+    private static class RootPipelineCloseCallback extends StageWrapperCallback {
+
+        RootPipelineCloseCallback(StageWrapper stageWrapper) {
+            super(stageWrapper);
+        }
+
+        @Override
+        void doWork(StageWrapper stageWrapper, ExecutionContext context) {
+            Pipeline pipeline = (Pipeline) stageWrapper;
+
+            // set the status on the context accordingly now that the pipeline ran
+            ExecutionContext.Event lastEvent = context.getLastStageEvent(pipeline.getId());
+            if (lastEvent == null || lastEvent.getEventType() != ExecutionContext.EventType.EXCEPTION) {
+                context.setSuccess();
+                context.createEvent(pipeline, ExecutionContext.EventType.SUCCESS, this.getClass().getCanonicalName() + ".run()");
+            } else {
+                context.setFailure();
+                context.createEvent(pipeline, ExecutionContext.EventType.FAILURE, this.getClass().getCanonicalName() + ".run()");
+            }
+
+            // clean up if this pipeline was ran in a detached thread
+            if (pipeline.executorService != null) {
+                pipeline.executorService.shutdown();
+                pipeline.executorService = null;
+            }
+        }
+    }
+
     public enum ImageType {
         JPEG,
         PNG,
@@ -64,6 +92,7 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
     @Override
     // StageWrapper
     final ExecutionContext init(ExecutionContext context) throws Exception {
+        context = super.init(context);
         setStage(this);
         return context;
     }
@@ -71,6 +100,7 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
     @Override
     // StageWrapper
     final ExecutionContext close(ExecutionContext context) throws Exception {
+        context = super.close(context);
         return context;
     }
 
@@ -120,19 +150,19 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
     }
 
     public final ExecutionContext run(ExecutionContext context) throws Exception {
-        this.context = context;
+        // prime the pipeline
+        setContext(context);
+        registerCloseCallback(new RootPipelineCloseCallback(this));
         context.setInProgress();
         context.createEvent(this, ExecutionContext.EventType.PIPELINE_IN_PROGRESS, this.getClass().getName() + ".run()");
+
+        // execute the pipeline (returns when the pipeline fully executes --> ran in this thread)
         try {
-            context = doWork(context);
-            context.setSuccess();
-            context.createEvent(this, ExecutionContext.EventType.SUCCESS, this.getClass().getCanonicalName() + ".run()");
+            StageRunner runner = new StageRunner(context);
+            context = runner.run(this);
         } catch (Exception e) {
-            context.createEvent(this, ExecutionContext.EventType.EXCEPTION, e.toString());
-            context.setFailure();
-            context.createEvent(this, ExecutionContext.EventType.FAILURE, this.getClass().getCanonicalName() + ".run()");
             logger.error("Pipeline.run(context) failed with error: " + context.getEventLog().toString());
-            throw new PipelineExecutionException(e);
+            throw e;
         }
         return context;
     }
@@ -146,16 +176,16 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
         if (executorService != null) {
             throw new PipelineExecutionException("This pipeline was started but never shutdown; must invoke shutdownDetached() before running again.");
         }
-        this.setContext(context);
+
+        // prime the pipeline
+        setContext(context);
+        registerCloseCallback(new RootPipelineCloseCallback(this));
+        context.setInProgress();
+        context.createEvent(this, ExecutionContext.EventType.PIPELINE_IN_PROGRESS, this.getClass().getName() + ".run()");
+
+        // run it detached (i.e., returns immediately and executes in a different thread)
         executorService = Executors.newFixedThreadPool(1);
         return executorService.submit(this);
-    }
-
-    public final void shutdownDetached() {
-        if (executorService != null) {
-            executorService.shutdown();
-            executorService = null;
-        }
     }
 
     // Callable abstract method
@@ -203,7 +233,8 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
     public BufferedImage render() throws Exception {
         final String WHITE = "#ffffff";
         final String YELLOW = "#ffff00";
-        final String GREEN = "#008000";
+        //final String GREEN = "#008000";
+        final String GREEN = "#65fe08";
         final String RED = "#ff0000";
         Graph<String, DefaultEdge> pipelineGraph = buildPiplineGraph();
 
@@ -221,29 +252,40 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
         Collection<mxICell> reds = new Vector<>();
         Collection<mxICell> greens = new Vector<>();
         Collection<mxICell> yellows = new Vector<>();
+        Collection<mxICell> roots = new Vector<>();
+        Collection<mxICell> parallels = new Vector<>();
+        Collection<mxICell> pipelines = new Vector();
 
         List<ExecutionContext.Event> eventLog = context.getEventLog();
         for(String vertexId : pipelineGraph.vertexSet()) {
+            mxICell cell = nodeMap.get(vertexId);
             for(int i = eventLog.size() - 1; i >=0; i--) {
                 ExecutionContext.Event event = eventLog.get(i);
                 if (vertexId.contains(event.getId())) {
                     switch (event.getEventType()) {
                         case ExecutionContext.EventType.CALLED_STAGE:
                         case ExecutionContext.EventType.SUCCESS:
-                            greens.add(nodeMap.get(vertexId));
+                            greens.add(cell);
                             break;
 
                         case ExecutionContext.EventType.PIPELINE_IN_PROGRESS:
                         case ExecutionContext.EventType.CALLING_STAGE:
-                            yellows.add(nodeMap.get(vertexId));
+                            yellows.add(cell);
                             break;
 
                         case ExecutionContext.EventType.FAILURE:
                         case ExecutionContext.EventType.EXCEPTION:
-                            reds.add(nodeMap.get(vertexId));
+                            reds.add(cell);
                             break;
                     }
                 }
+            }
+            if (vertexId.contains(this.getId())) {
+                roots.add(cell);
+            } else if (vertexId.contains("Pipeline>")) {
+                pipelines.add(cell);
+            } else if (vertexId.contains("Parallel>")) {
+                parallels.add(cell);
             }
         }
 
@@ -253,12 +295,33 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
             graphAdapter.setCellStyles(mxConstants.STYLE_FILLCOLOR, GREEN, greens.toArray());
             graphAdapter.setCellStyles(mxConstants.STYLE_FILLCOLOR, RED, reds.toArray());
 
+            graphAdapter.setCellStyles(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_DOUBLE_RECTANGLE, roots.toArray());
+            graphAdapter.setCellStyles(mxConstants.STYLE_FONTSTYLE, String.valueOf(mxConstants.FONT_BOLD), roots.toArray());
+
+            graphAdapter.setCellStyles(mxConstants.STYLE_FONTSTYLE, String.valueOf(mxConstants.FONT_ITALIC), parallels.toArray());
+            graphAdapter.setCellStyles(mxConstants.STYLE_FONTSTYLE, String.valueOf(mxConstants.FONT_ITALIC), pipelines.toArray());
         } finally {
             graphAdapter.getModel().endUpdate();
         }
 
         // return an image, the background color of the image is set to white
         return mxCellRenderer.createBufferedImage(graphAdapter, null, 2, Color.WHITE, true, null);
+    }
+
+    @Override
+    public void registerPreStageCallback(String stageId, StageCallback callback) {
+        super.registerPreStageCallback(stageId, callback);
+        for(StageWrapper stage : stages) {
+                stage.registerPreStageCallback(stageId, callback);
+        }
+    }
+
+    @Override
+    public void registerPostStageCallback(String stageId, StageCallback callback) {
+        super.registerPostStageCallback(stageId, callback);
+        for(StageWrapper stage : stages) {
+                stage.registerPostStageCallback(stageId, callback);
+        }
     }
 }
 

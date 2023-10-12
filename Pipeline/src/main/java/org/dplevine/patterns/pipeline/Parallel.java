@@ -41,6 +41,7 @@ final class Parallel extends StageWrapper { // will change visibility once the b
 
     @Override
     final ExecutionContext init(ExecutionContext context) throws Exception {
+        context = super.init(context);
         setStage(this);
         futures = null;
         executorService = Executors.newFixedThreadPool(THREADPOOL_SIZE); // this is what manages the concurrency
@@ -49,8 +50,9 @@ final class Parallel extends StageWrapper { // will change visibility once the b
 
     @Override
     final ExecutionContext close(ExecutionContext context) throws Exception {
+        context = super.close(context);
         executorService.shutdown();  // clean up all the threads (after execution has completed)
-        if (fastFail) {
+        if (fastFail && futures != null) {
             for (Future<ExecutionContext> future : futures) {
                 future.get();  // will throw if one of the parallel pipelines threw
             }
@@ -90,5 +92,21 @@ final class Parallel extends StageWrapper { // will change visibility once the b
         pipelineGraph.addEdge(root, startId);
         parallelPipelines.forEach(parallelPipeline -> pipelineGraph.addEdge(parallelPipeline.buildGraph(startId, pipelineGraph),endId));
         return endId;
+    }
+
+    @Override
+    void registerPreStageCallback(String stageId, StageCallback callback) {
+        super.registerPreStageCallback(stageId, callback);
+        for(Pipeline pipeline : parallelPipelines) {
+               pipeline.registerPreStageCallback(stageId, callback);
+        }
+    }
+
+    @Override
+    void registerPostStageCallback(String stageId, StageCallback callback) {
+        super.registerPostStageCallback(stageId, callback);
+        for(Pipeline pipeline : parallelPipelines) {
+                pipeline.registerPostStageCallback(stageId, callback);
+        }
     }
 }
