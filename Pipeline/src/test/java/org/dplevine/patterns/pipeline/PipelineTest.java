@@ -1,52 +1,85 @@
 package org.dplevine.patterns.pipeline;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.*;
+public class PipelineTest {
+    private Pipeline pipeline;
 
-class PipelineTest {
-
-    @Test
-    void setContext() {
+    @Before
+    public void setUp() {
+        pipeline = new Pipeline("testPipeline", true); // Adjust the constructor parameters as needed
     }
 
     @Test
-    void addStage() {
+    public void testAddStage() {
+        StageWrapper stage = Mockito.mock(StageWrapper.class); // Use Mockito to create a mock stage
+        pipeline.addStage(stage);
+        assertTrue(pipeline.getStages().contains(stage));
     }
 
     @Test
-    void init() {
+    public void testInit() throws Exception {
+        ExecutionContext context = new ExecutionContext();
+        pipeline.setContext(context);
+
+        ExecutionContext resultContext = pipeline.init(context);
+
+        // Assert that the context is correctly initialized
+        assertEquals(context, resultContext);
+        // Add more assertions as needed
     }
 
     @Test
-    void close() {
+    public void testClose() throws Exception {
+        ExecutionContext context = new ExecutionContext();
+        pipeline.setContext(context);
+
+        ExecutionContext resultContext = pipeline.close(context);
+
+        // Assert that the context is correctly closed
+        assertEquals(context, resultContext);
+        // Add more assertions as needed
     }
 
     @Test
-    void doWork() {
-    }
+    public void testDoWork() throws Exception {
+        ExecutionContext context = new ExecutionContext();
+        pipeline.setContext(context);
 
-    @Test
-    void run() {
-    }
 
-    @Test
-    void testRun() {
-    }
+        // Mock the stages within the pipeline
+        StageWrapper stageWrapper1 = Mockito.mock(StageWrapper.class);
+        Stage stage = Mockito.mock(Stage.class);
 
-    @Test
-    void buildGraph() {
-    }
+        StageWrapper stageWrapper2 = Mockito.mock(StageWrapper.class);
 
-    @Test
-    void buildPiplineGraph() {
-    }
 
-    @Test
-    void render() {
-    }
+        // Set up the stages list
+        pipeline.addStage(stageWrapper1);
+        pipeline.addStage(stageWrapper2);
 
-    @Test
-    void testRender() {
+        // Define expected behavior of the mocked stages
+        Mockito.when(stageWrapper1.getId()).thenReturn("stage1");
+        Mockito.when(stageWrapper1.getStage()).thenReturn(stage);
+        Mockito.when(stageWrapper1.doWork(context)).thenReturn(context);
+        Mockito.when(stageWrapper1.getId()).thenReturn("stage2");
+        Mockito.when(stageWrapper2.getStage()).thenReturn(stage);
+        Mockito.when(stageWrapper2.doWork(context)).thenReturn(context);
+
+        try {
+            pipeline.init(context);
+            ExecutionContext resultContext = pipeline.doWork(context);
+
+            // Perform assertions based on expected results
+            assertNotNull(resultContext);
+            // Add more assertions as needed
+        } catch (Exception e) {
+            fail("Exception should not have been thrown: " + e.getMessage());
+        } finally {
+            pipeline.close(context);
+        }
     }
 }

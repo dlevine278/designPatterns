@@ -5,6 +5,16 @@ import java.util.Vector;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * The PipelineSpecification class represets a specification for defining a pipeline's structure, including
+ * stages, options, and parallel sections.
+ *
+ * It models the structure of a pipeline using various inner classes:
+ * OptionDefinition to define options with a name, type, and value.
+ * StageDefinition to define stages with an identifier and class name.
+ * ParallelDefinition to define parallel sections containing a list of parallel pipelines.
+ * PipelineDefinition to define a pipeline with an identifier and a list of steps.
+ */
 public final class PipelineSpecification {
     @JsonProperty(required = true)
     private String id;

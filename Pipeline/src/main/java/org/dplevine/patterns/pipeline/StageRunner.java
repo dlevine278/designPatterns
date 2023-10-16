@@ -3,6 +3,14 @@ package org.dplevine.patterns.pipeline;
 public class  StageRunner {
     ExecutionContext context;
 
+    /**
+     * The StageRunner class is responsible for initializing, running, and closing a StageWrapper.
+     * It manages the execution of a stage and handles exceptions.
+     *
+     * The StageRunner class encapsulates the logic for initializing, running, and closing a StageWrapper.
+     * It also logs events during the process.
+     * @param context
+     */
     StageRunner(ExecutionContext context) {
         this.context = context;
     }

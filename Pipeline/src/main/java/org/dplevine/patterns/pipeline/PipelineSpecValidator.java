@@ -3,6 +3,12 @@ package org.dplevine.patterns.pipeline;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * The PipelineSpecValidator class is responsible for validating a PipelineSpecification to ensure that it adheres to certain rules
+ * and is well-formed.  This class applies several validation rules to the PipelineSpecification.
+ * These rules cover various aspects, including checking for null IDs, unique IDs, well-formed stages, pipelines, parallels, and steps.
+ *
+ */
 class PipelineSpecValidator implements Stage {
 
     // make sure all ids are non-null

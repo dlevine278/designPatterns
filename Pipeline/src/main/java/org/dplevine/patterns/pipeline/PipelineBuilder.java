@@ -9,7 +9,10 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+/**
+ * The PipelineBuilder class is responsible for constructing pipelines based on different input sources,
+ * such as file paths or pipeline specifications.
+ */
 public final class PipelineBuilder {
 
     public static PipelineBuilder createBuilder() {

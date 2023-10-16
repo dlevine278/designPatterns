@@ -5,6 +5,10 @@ import org.dplevine.patterns.pipeline.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ *
+ The HelloWorld class demonstrates the use of your pipeline framework to create a simple "Hello, World" pipeline programmatically.
+ */
 public class HelloWorld {
 
 

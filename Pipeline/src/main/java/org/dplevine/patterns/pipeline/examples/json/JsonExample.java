@@ -3,7 +3,10 @@ package org.dplevine.patterns.pipeline.examples.json;
 import org.dplevine.patterns.pipeline.*;
 import java.net.URL;
 
-
+/**
+ * The JsonExample class demonstrates the use of your pipeline framework by creating a simple
+ * "Hello, World" pipeline from a JSON configuration file.
+ */
 public class JsonExample {
 
     static final String PIPELINE_JSON = "/helloWorld.json";

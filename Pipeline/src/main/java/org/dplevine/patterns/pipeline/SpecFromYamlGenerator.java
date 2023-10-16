@@ -7,6 +7,12 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
+/**
+ * The SpecFromYamlGenerator class is responsible for generating a PipelineSpecification object from a YAML file.  The class
+ * performs the important task of reading a YAML file and creating a PipelineSpecification object from its content; handling
+ * YAML deserialization, logging of error messages when exceptions occur, and makes the parsed object available in the
+ * context for further processing.
+ */
 class SpecFromYamlGenerator implements Stage {
     private static final Logger logger = LoggerFactory.getLogger(SpecFromYamlGenerator.class);
 

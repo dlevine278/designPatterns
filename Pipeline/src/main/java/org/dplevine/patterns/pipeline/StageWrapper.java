@@ -6,6 +6,11 @@ import org.jgrapht.graph.DefaultEdge;
 import java.util.List;
 import java.util.Vector;
 
+/**
+ * The StageWrapper class is an essential part of the pipeline framework, serving as a wrapper for individual stages.
+ * It provides a way to execute externally defined stages and manage initialization and cleanup routines, acting as a bridge
+ * between the framework and user-defined stages.
+ */
 class StageWrapper implements Stage {
 
     private String id;

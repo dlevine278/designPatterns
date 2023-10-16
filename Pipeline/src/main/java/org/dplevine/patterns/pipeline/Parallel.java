@@ -11,6 +11,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+
+/**
+ * The Parallel class is a component that can be used to execute multiple Pipeline instances concurrently.
+ * It allows the definition of a group of pipelines to run in parallel and manage their execution.
+ */
 final class Parallel extends StageWrapper { // will change visibility once the builder is complete
     private final int THREADPOOL_SIZE = 10;  // size of threadpool = number of concurrent pipelines that can run at any given time
     private final String PARALLEL_START_TAG  = " - <Parallel>";
@@ -108,5 +113,9 @@ final class Parallel extends StageWrapper { // will change visibility once the b
         for(Pipeline pipeline : parallelPipelines) {
                 pipeline.registerPostStageCallback(stageId, callback);
         }
+    }
+
+    List<Pipeline> getParallelPipelines() {
+        return parallelPipelines;
     }
 }

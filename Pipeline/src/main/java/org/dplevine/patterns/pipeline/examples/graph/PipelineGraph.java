@@ -5,6 +5,12 @@ import org.dplevine.patterns.pipeline.*;
 import java.net.URL;
 import java.util.concurrent.Future;
 
+
+/**
+ * The PipelineGraph class demonstrates the use of your pipeline framework to create a pipeline with stages
+ * involving timers and random exception as a means of showcasing how to visualize the pipeline's execution and
+ * capture its event log for monitoring and debugging.
+ */
 public class PipelineGraph {
 
     static final String PIPLINE_GRAPH = "/pipelineGraph.yaml";

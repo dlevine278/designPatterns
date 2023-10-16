@@ -21,6 +21,13 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.*;
 
+
+/**
+ * The Pipeline class is responsible for executing a series of stages in a specific order.
+ * It ensures that the stages are executed in a topological order, making it suitable for scenarios where stages have dependencies on one another.
+ *
+ * This class serves as a container for stages and orchestrates the execution of those stages within a pipeline.
+ */
 public final class Pipeline extends StageWrapper implements Callable<ExecutionContext> {
 
     private final String PIPELINE_START_TAG  = " - <Pipeline>";
@@ -87,6 +94,10 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
     Pipeline addStage(StageWrapper stage) {
         stages.add(stage);
         return this;
+    }
+
+    List<StageWrapper> getStages() {
+        return stages;
     }
 
     @Override

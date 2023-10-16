@@ -7,6 +7,9 @@ import org.jgrapht.graph.DirectedMultigraph;
 
 import java.util.*;
 
+/**
+ * The PipelineGenerator class is responsible for generating a pipeline based on a provided PipelineSpecification.
+ */
 class PipelineGenerator implements Stage {
 
     private enum StageType {
