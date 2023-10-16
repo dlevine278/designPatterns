@@ -233,11 +233,10 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
     public BufferedImage render() throws Exception {
         final String WHITE = "#ffffff";
         final String YELLOW = "#ffff00";
-        //final String GREEN = "#008000";
         final String GREEN = "#65fe08";
         final String RED = "#ff0000";
-        Graph<String, DefaultEdge> pipelineGraph = buildPiplineGraph();
 
+        Graph<String, DefaultEdge> pipelineGraph = buildPiplineGraph();
         JGraphXAdapter<String, DefaultEdge> graphAdapter =
                 new JGraphXAdapter<>(pipelineGraph);
         graphAdapter.getEdgeToCellMap().forEach((edge, cell) -> cell.setValue(null));

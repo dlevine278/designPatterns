@@ -70,7 +70,7 @@ public class ExecutionContext {
 
         @Override
         public String toString() {
-            return timestamp + " " + id + " " + eventType + " " + details + "\n";
+            return "Timestamp: " + timestamp + "\t\t\t\tId: " + id + "\t\t\t\tEventType: " + eventType + "\t\t\t\tDetails: " + details + "\n";
         }
     }
 
