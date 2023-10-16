@@ -13,12 +13,12 @@ public class ParallelTest {
 
     @Before
     public void setUp() {
-        parallel = new Parallel("testParallel", true); // Adjust the constructor parameters as needed
+        parallel = new Parallel("testParallel", true);
     }
 
     @Test
     public void testAddPipeline() {
-        Pipeline pipeline = Mockito.mock(Pipeline.class); // You can use a mocking framework like Mockito for testing
+        Pipeline pipeline = Mockito.mock(Pipeline.class);
         parallel.addPipeline(pipeline);
         assertTrue(parallel.getParallelPipelines().contains(pipeline));
     }
@@ -50,7 +50,7 @@ public class ParallelTest {
         parallel.addPipeline(pipeline2);
 
         // Define expected behavior of the mocked Pipelines
-        Mockito.when(pipeline1.call()).thenReturn(context); // You may need to adjust this based on your actual implementation
+        Mockito.when(pipeline1.call()).thenReturn(context);
         Mockito.when(pipeline2.call()).thenReturn(context);
 
         try {
@@ -66,6 +66,4 @@ public class ParallelTest {
             parallel.close(context);
         }
     }
-
-    // Add more test cases as needed for other methods and scenarios
 }

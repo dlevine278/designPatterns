@@ -29,7 +29,6 @@ public class PipelineTest {
 
         // Assert that the context is correctly initialized
         assertEquals(context, resultContext);
-        // Add more assertions as needed
     }
 
     @Test
@@ -41,7 +40,6 @@ public class PipelineTest {
 
         // Assert that the context is correctly closed
         assertEquals(context, resultContext);
-        // Add more assertions as needed
     }
 
     @Test
