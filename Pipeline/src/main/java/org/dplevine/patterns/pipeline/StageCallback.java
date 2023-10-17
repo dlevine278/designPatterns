@@ -6,5 +6,5 @@ package org.dplevine.patterns.pipeline;
  */
 public interface StageCallback {
 
-    public void doCallback(String stageId, Stage stage, ExecutionContext context);
+    public void onEvent(String stageId, Stage stage, ExecutionContext context);
 }

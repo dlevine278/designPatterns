@@ -46,7 +46,7 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
         }
 
         @Override
-        void doWork(StageWrapper stageWrapper, ExecutionContext context) {
+        void onEvent(StageWrapper stageWrapper, ExecutionContext context) {
             Pipeline pipeline = (Pipeline) stageWrapper;
 
             // set the status on the context accordingly now that the pipeline ran

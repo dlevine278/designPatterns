@@ -11,5 +11,5 @@ abstract class StageWrapperCallback {
         this.stageWrapper = stageWrapper;
     }
 
-    abstract void doWork(StageWrapper stageWrapper, ExecutionContext context);
+    abstract void onEvent(StageWrapper stageWrapper, ExecutionContext context);
 }

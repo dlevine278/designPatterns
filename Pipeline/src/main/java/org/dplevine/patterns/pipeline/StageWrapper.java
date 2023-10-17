@@ -54,11 +54,11 @@ class StageWrapper implements Stage {
     // hook to allow the pipeline to do some initialization
     ExecutionContext init(ExecutionContext context) throws Exception {
         for(StageWrapperCallback callback : initCallbacks) {
-            callback.doWork(this, context);
+            callback.onEvent(this, context);
         }
 
         for (StageCallback callback : preStageCallbacks) {
-            callback.doCallback(id, stage, context);
+            callback.onEvent(id, stage, context);
         }
 
         return context;}
@@ -66,11 +66,11 @@ class StageWrapper implements Stage {
     // hook to allow the pipeline to do some cleanup - by default does nothing
     ExecutionContext close(ExecutionContext context) throws Exception {
         for(StageWrapperCallback callback : closeCallbacks) {
-            callback.doWork(this, context);
+            callback.onEvent(this, context);
         }
 
         for (StageCallback callback : postStageCallbacks) {
-            callback.doCallback(id, stage, context);
+            callback.onEvent(id, stage, context);
         }
 
         return context;}
