@@ -122,17 +122,13 @@ class PipelineGenerator implements Stage {
         // add the stages to the sub-piplines
         for(PipelineSpecification.PipelineDefinition pipelineDef : spec.getPipelines()) {
             Pipeline pipeline = (Pipeline) vertices.get(pipelineDef.getId()).getStage();
-            for(String stepDef : pipelineDef.getSteps()) {
-                pipeline.addStage(vertices.get(stepDef).getStage());
-            }
+            pipelineDef.getSteps().forEach(stepDef -> pipeline.addStage(vertices.get(stepDef).getStage()));
         }
 
         // add the sub-piplines to the parallels
         for(PipelineSpecification.ParallelDefinition parallelDef : spec.getParallels()) {
             Parallel parallel = (Parallel) vertices.get(parallelDef.getId()).getStage();
-            for(PipelineSpecification.PipelineDefinition parallelPipelineDef : parallelDef.getParallelPipelines()) {
-                parallel.addPipeline((Pipeline) vertices.get(parallelPipelineDef.getId()).getStage());
-            }
+            parallelDef.getParallelPipelines().forEach(parallelPipelineDef -> parallel.addPipeline((Pipeline) vertices.get(parallelPipelineDef.getId()).getStage()));
         }
 
         return vertices;

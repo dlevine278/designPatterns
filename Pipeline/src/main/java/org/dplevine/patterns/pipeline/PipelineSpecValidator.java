@@ -22,26 +22,22 @@ class PipelineSpecValidator implements Stage {
                 throw new PipelineBuilderException("The pipeline specification has a null identifier");
             }
 
-            for (PipelineSpecification.StageDefinition stageDef : spec.getStages()) {
-                if (stageDef.getId() == null || stageDef.getId().equals("")) {
-                    throw new PipelineBuilderException("At least one stage definition has a null identifier");
-                }
+            if (spec.getStages().stream().anyMatch(stageDef -> stageDef.getId() == null || stageDef.getId().equals(""))) {
+                throw new PipelineBuilderException("At least one stage definition has a null identifier");
             }
-            for (PipelineSpecification.ParallelDefinition parallelDef : spec.getParallels()) {
-                if (parallelDef.getId() == null || parallelDef.getId().equals("")) {
-                    throw new PipelineBuilderException("At least one parallel definition has a null identifier");
-                }
+
+            if (spec.getParallels().stream().anyMatch(parallelDef -> parallelDef.getId() == null || parallelDef.getId().equals(""))) {
+                throw new PipelineBuilderException("At least one parallel definition has a null identifier");
             }
-            for (PipelineSpecification.PipelineDefinition pipelineDef : spec.getPipelines()) {
-                if (pipelineDef.getId() == null || pipelineDef.getId().equals("")) {
-                    throw new PipelineBuilderException("At least one pipeline definition has a null identifier");
-                }
+
+            if (spec.getPipelines().stream().anyMatch(pipelineDef -> pipelineDef.getId() == null || pipelineDef.getId().equals(""))) {
+                throw new PipelineBuilderException("At least one pipeline definition has a null identifier");
             }
-            for (String stepDef : spec.getSteps()) {
-                if (stepDef == null || stepDef.equals("")) {
-                    throw new PipelineBuilderException("At least one step definition has a null identifier");
-                }
+
+            if (spec.getSteps().stream().anyMatch(stepDef -> stepDef == null || stepDef.equals(""))) {
+                throw new PipelineBuilderException("At least one step definition has a null identifier");
             }
+
             return context;
         }
     }
@@ -55,21 +51,9 @@ class PipelineSpecValidator implements Stage {
             Set<String> duplicateIds = new HashSet<>();
             Set<String> ids = new HashSet<>();
 
-            for (PipelineSpecification.StageDefinition stageDef : spec.getStages()) {
-                if (!ids.add(stageDef.getId())) {
-                    duplicateIds.add(stageDef.getId());
-                }
-            }
-            for (PipelineSpecification.ParallelDefinition parallelDef : spec.getParallels()) {
-                if (!ids.add(parallelDef.getId())) {
-                    duplicateIds.add(parallelDef.getId());
-                }
-            }
-            for (PipelineSpecification.PipelineDefinition pipelineDef : spec.getPipelines()) {
-                if (!ids.add(pipelineDef.getId())) {
-                    duplicateIds.add(pipelineDef.getId());
-                }
-            }
+            spec.getStages().stream().filter(stageDef -> !ids.add(stageDef.getId())).forEach(stageDef -> duplicateIds.add(stageDef.getId()));
+            spec.getParallels().stream().filter(parallelDef -> !ids.add(parallelDef.getId())).forEach(parallelDef -> duplicateIds.add(parallelDef.getId()));
+            spec.getPipelines().stream().filter(pipelineDef -> !ids.add(pipelineDef.getId())).forEach(pipelineDef -> duplicateIds.add(pipelineDef.getId()));
 
             if (!duplicateIds.isEmpty()) {
                 throw new PipelineBuilderException("The following Ids are duplicated:" + duplicateIds);
@@ -86,11 +70,7 @@ class PipelineSpecValidator implements Stage {
             PipelineSpecification spec = (PipelineSpecification) context.getObject(BuilderContext.PIPELINE_SPEC);
             Set<String> malformedStages = new HashSet<>();
 
-            for (PipelineSpecification.StageDefinition stageDef : spec.getStages()) {
-                if (stageDef.getClassName() == null || stageDef.getClassName().equals("")) {
-                    malformedStages.add(stageDef.getId());
-                }
-            }
+            spec.getStages().stream().filter(stageDef -> stageDef.getClassName() == null || stageDef.getClassName().equals("")).forEach(stageDef -> malformedStages.add(stageDef.getId()));
 
             if (!malformedStages.isEmpty()) {
                 throw new PipelineBuilderException("The following stage definitions are malformed:" + malformedStages);
@@ -115,11 +95,7 @@ class PipelineSpecValidator implements Stage {
             spec.getParallels().forEach(parallelDef -> ids.add(parallelDef.getId()));
 
             for (PipelineSpecification.PipelineDefinition pipelineDef : spec.getPipelines()) {
-                for (String pipelineStepDef : pipelineDef.getSteps()) {
-                    if (!ids.contains(pipelineStepDef)) {
-                        malformedPipelines.add(pipelineDef.getId());
-                    }
-                }
+                pipelineDef.getSteps().stream().filter(pipelineStepDef -> !ids.contains(pipelineStepDef)).forEach(pipelineStepDef -> malformedPipelines.add(pipelineDef.getId()));
             }
 
             if (!malformedPipelines.isEmpty()) {
@@ -145,11 +121,7 @@ class PipelineSpecValidator implements Stage {
             spec.getParallels().forEach(parallelDef -> ids.add(parallelDef.getId()));
 
             for (PipelineSpecification.ParallelDefinition parallelDef : spec.getParallels()) {
-                for (PipelineSpecification.PipelineDefinition parallelPipeline : parallelDef.getParallelPipelines()) {
-                    if (!ids.contains(parallelPipeline.getId())) {
-                        malformedParallels.add(parallelDef.getId());
-                    }
-                }
+                parallelDef.getParallelPipelines().stream().filter(parallelPipeline -> !ids.contains(parallelPipeline.getId())).forEach(parallelPipeline -> malformedParallels.add(parallelDef.getId()));
             }
 
             if (!malformedParallels.isEmpty()) {
@@ -174,11 +146,7 @@ class PipelineSpecValidator implements Stage {
             spec.getPipelines().forEach(pipelineDef -> ids.add(pipelineDef.getId()));
             spec.getParallels().forEach(parallelDef -> ids.add(parallelDef.getId()));
 
-            for (String stepDef : spec.getSteps()) {
-                if (!ids.contains(stepDef)) {
-                    malformedSteps.add(stepDef);
-                }
-            }
+            spec.getSteps().stream().filter(stepDef -> !ids.contains(stepDef)).forEach(stepDef -> malformedSteps.add(stepDef));
 
             if (!malformedSteps.isEmpty()) {
                 throw new PipelineBuilderException("The following steps definitions are unresolved:" + malformedSteps);

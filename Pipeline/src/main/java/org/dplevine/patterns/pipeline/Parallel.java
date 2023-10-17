@@ -102,17 +102,13 @@ final class Parallel extends StageWrapper { // will change visibility once the b
     @Override
     void registerPreStageCallback(String stageId, StageCallback callback) {
         super.registerPreStageCallback(stageId, callback);
-        for(Pipeline pipeline : parallelPipelines) {
-               pipeline.registerPreStageCallback(stageId, callback);
-        }
+        parallelPipelines.forEach(pipeline -> pipeline.registerPreStageCallback(stageId, callback));
     }
 
     @Override
     void registerPostStageCallback(String stageId, StageCallback callback) {
         super.registerPostStageCallback(stageId, callback);
-        for(Pipeline pipeline : parallelPipelines) {
-                pipeline.registerPostStageCallback(stageId, callback);
-        }
+        parallelPipelines.forEach(pipeline -> pipeline.registerPostStageCallback(stageId, callback));
     }
 
     List<Pipeline> getParallelPipelines() {

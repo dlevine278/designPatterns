@@ -34,7 +34,7 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
     private final String PIPELINE_END_TAG = " - </Pipeline>";
 
     private static final Logger logger = LoggerFactory.getLogger(Pipeline.class);
-    private List<StageWrapper> stages = new Vector<>();
+    private List<StageWrapper> stageWrappers = new Vector<>();
     private Boolean fastFail = true; // true by default
     private ExecutionContext context = new ExecutionContext();
     private ExecutorService executorService = null;
@@ -91,13 +91,13 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
     }
 
     // we can incrementally add stages as well
-    Pipeline addStage(StageWrapper stage) {
-        stages.add(stage);
+    Pipeline addStage(StageWrapper stageWrapper) {
+        stageWrappers.add(stageWrapper);
         return this;
     }
 
     List<StageWrapper> getStages() {
-        return stages;
+        return stageWrappers;
     }
 
     @Override
@@ -122,13 +122,11 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
         Graph<StageWrapper, DefaultEdge> pipeline = new DirectedMultigraph<>(DefaultEdge.class);
 
         // add stages
-        for (StageWrapper stage : stages) {
-            pipeline.addVertex(stage);
-        }
+        stageWrappers.forEach(stageWrapper -> pipeline.addVertex(stageWrapper));
 
         // we start at index = 1 because the first entry (i.e., index = 0) is the root
-        for(int i = 1; i < stages.size(); i++) {
-            pipeline.addEdge(stages.get(i-1), stages.get(i));
+        for(int i = 1; i < stageWrappers.size(); i++) {
+            pipeline.addEdge(stageWrappers.get(i-1), stageWrappers.get(i));
         }
 
         // 2. make sure this pipeline's graph is acyclic (probably redundant)
@@ -140,10 +138,10 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
         StageRunner runner = new StageRunner(context);
         Iterator<StageWrapper> iterator = new TopologicalOrderIterator<>(pipeline);
         while (iterator.hasNext()) {
-            StageWrapper stage= iterator.next();
+            StageWrapper stagWrapper = iterator.next();
 
             try {
-                runner.run(stage);
+                runner.run(stagWrapper);
             } catch (Exception e) {
                 if (fastFail) {
                     logger.error("stack trace: " + e.getLocalizedMessage());
@@ -221,7 +219,7 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
         } else {
             pipelineGraph.addEdge(root, startId);
         }
-        for (StageWrapper stage : stages) {
+        for (StageWrapper stage : stageWrappers) {
             subRoot = stage.buildGraph(subRoot, pipelineGraph);
         }
         pipelineGraph.addEdge(subRoot, endId);
@@ -321,17 +319,13 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
     @Override
     public void registerPreStageCallback(String stageId, StageCallback callback) {
         super.registerPreStageCallback(stageId, callback);
-        for(StageWrapper stage : stages) {
-                stage.registerPreStageCallback(stageId, callback);
-        }
+        stageWrappers.forEach(stageWrapper -> stageWrapper.registerPreStageCallback(stageId, callback));
     }
 
     @Override
     public void registerPostStageCallback(String stageId, StageCallback callback) {
         super.registerPostStageCallback(stageId, callback);
-        for(StageWrapper stage : stages) {
-                stage.registerPostStageCallback(stageId, callback);
-        }
+        stageWrappers.forEach(stageWrapper -> stageWrapper.registerPostStageCallback(stageId, callback));
     }
 }
 

@@ -129,17 +129,13 @@ public class ExecutionContext {
 
     public List<Event> getExceptionEvents() {
         List<Event> filteredEvents = new Vector<>();
-
         eventLog.stream().filter(event -> event.getEventType() == EventType.EXCEPTION).forEach(event -> filteredEvents.add(event));
-
         return filteredEvents;
     }
 
     public List<Event> getStageEvents(String id) {
         List<Event> filteredEvents = new Vector<>();
-
         eventLog.stream().filter(event -> event.getId().equals(id)).forEach(event -> filteredEvents.add(event));
-
         return filteredEvents;
     }
 
