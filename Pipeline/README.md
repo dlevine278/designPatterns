@@ -13,15 +13,27 @@
 > 
 > My implementation of the pipeline pattern consists of the following sub-constructs:
 > 
->>_Stage:_ A stage is 
+>>_**Execution Context:**_ The ExecutionContext class is the primary data structure used throughout the pipeline for passing data (i.e., DTO) and maintaining a log of events during the execution of a pipeline. The class contains methods that stages can use to add and access data to the Execution Context.
+>
+>>_**Stage:**_ A Stage is a simple interface that defines a generic method that can be implemented by various stages or steps in a pipeline. 
+> Each stage will take an input ExecutionContext, perform some work, and return an updated ExecutionContext. 
+> The use of exceptions indicates that errors can occur during the execution of a stage.  Any class that is to be defined as part of a pipeline implements this interface.
 > 
->> _StageBuilder:_
+>> _**StageBuilder:**_ The StageBuiler interface is used for building and configuring stages in a pipeline (i.e., factory pattern). By implementing this interface, classes provide custom logic for creating instances of the Stage interface, 
+> potentially with specific configuration parameters or settings.
 > 
->>_Parallel:_
+>>_**Parallel:**_ The Parallel is a framework class that can be defined as a pipeline stage that allows the execution of multiple Pipeline instances concurrently. 
+> It allows you to define stages that are comprised of a group of pipelines to run in parallel and manages their execution.
 > 
->>_Step:_
+>>_**Step:**_
 > 
-
+>>_**Pipeline:**_ The Pipeline class is responsible for executing a series of stage instances in a specific order (i.e., Steps). It ensures that the stages are executed in a topological order, making it suitable for scenarios where stages have dependencies on one another.
+>
+>>_**PipelineBuilder:**_ The PipelineBuilder class is a factory responsible for constructing pipelines based on different input sources, such as JSON or YAML files or a PiplineSpecification object.  
+> It encapsulates the work required to assemble and wire together pipelines.
+>
+>>_**PipelineSpecification:**_ The PipelineSpecification class is used to define a set of elements that collectively describe a pipeline's configuration.  
+> Instances of this can be directly be created within your java code to dynamically construct piplines and/or are created under the covers by the PipelineBuilder class as part of parsing JSON and/or YAML pipeline specifications.
 
 **_How to Build_**
 
@@ -267,6 +279,11 @@ _**How to Implement Pipelines**_
 >```
 > 
 > _**Running Pipelines**_
+> 
+>> _**Modes of Execution**_
+>>> fastFail
+>>> 
+>>> Detached vs. Same-Thread 
 > 
 _**How to Monitor Pipeline Execution and Status**_
 >_**Rendering Pipelines**_
