@@ -309,14 +309,14 @@ Here's the source code for a simple two stage pipeline that prints out Hello Wor
 >
 >/**
 >* The JsonExample class demonstrates the use of your pipeline framework by creating a simple
->* "Hello, World" pipeline from a JSON configuration file.
->  */
->  public class JsonExample {
+>* "Hello World!" pipeline from a JSON configuration file.
+>*/
+>public class JsonExample {
 >
->  static final String PIPELINE_JSON = "/helloWorld.json";
+>    static final String PIPELINE_JSON = "/helloWorld.json";
 >
->  static class HelloWorldContext extends ExecutionContext {
->  public static final String MESSAGE = "HELLO_WORLD_MESSAGE";
+>    static class HelloWorldContext extends ExecutionContext {
+>       public static final String MESSAGE = "HELLO_WORLD_MESSAGE";
 >
 >       public HelloWorldContext() {
 >           super();
@@ -329,7 +329,7 @@ Here's the source code for a simple two stage pipeline that prints out Hello Wor
 >       public void setMessage(String message) {
 >           addObject(MESSAGE, message);
 >       }
->  }
+>    }
 >
 >
 >    public static class Hello implements Stage, StageBuilder {
@@ -350,7 +350,6 @@ Here's the source code for a simple two stage pipeline that prints out Hello Wor
 >
 >
 >    public static class World implements Stage, StageBuilder {
->
 >        public World () {}
 >
 >        @Override

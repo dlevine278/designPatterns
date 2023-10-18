@@ -37,7 +37,7 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
     private List<StageWrapper> stageWrappers = new Vector<>();
     private Boolean fastFail = true; // true by default
     private ExecutionContext context = new ExecutionContext();
-    private ExecutorService executorService = null;
+    private ExecutorService executorService = null;  // used when running this pipeline (root) runs as a detached process (i.e., pipeline.runDetached(...))
 
     private static class RootPipelineCloseCallback extends StageWrapperCallback {
 
@@ -87,7 +87,16 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
 
     //setters and getters
     void setContext(ExecutionContext context) {
-        this.context = context;
+        synchronized(this) {
+            this.context = context;
+        }
+    }
+
+
+    public ExecutionContext getContext() {
+        synchronized (this) {
+            return context;
+        }
     }
 
     // we can incrementally add stages as well
@@ -105,6 +114,8 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
     final ExecutionContext init(ExecutionContext context) throws Exception {
         context = super.init(context);
         setStage(this);
+        clearCloseCallbacks();
+        registerCloseCallback(new RootPipelineCloseCallback(this));
         return context;
     }
 
@@ -161,7 +172,6 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
     public final ExecutionContext run(ExecutionContext context) throws Exception {
         // prime the pipeline
         setContext(context);
-        registerCloseCallback(new RootPipelineCloseCallback(this));
         context.setInProgress();
         context.createEvent(this, ExecutionContext.EventType.PIPELINE_IN_PROGRESS, this.getClass().getName() + ".run()");
 
@@ -188,7 +198,6 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
 
         // prime the pipeline
         setContext(context);
-        registerCloseCallback(new RootPipelineCloseCallback(this));
         context.setInProgress();
         context.createEvent(this, ExecutionContext.EventType.PIPELINE_IN_PROGRESS, this.getClass().getName() + ".run()");
 
@@ -201,7 +210,7 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
     @Override
     //Callable
     public ExecutionContext call() throws Exception {
-        StageRunner runner = new StageRunner(context);
+        StageRunner runner = new StageRunner(getContext());
         return runner.run(this);
     }
 
@@ -264,7 +273,7 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
         Collection<mxICell> parallels = new Vector<>();
         Collection<mxICell> pipelines = new Vector();
 
-        List<ExecutionContext.Event> eventLog = context.getEventLog();
+        List<ExecutionContext.Event> eventLog = getContext().getEventLog();
         for(String vertexId : pipelineGraph.vertexSet()) {
             mxICell cell = nodeMap.get(vertexId);
             for(int i = eventLog.size() - 1; i >=0; i--) {
@@ -326,6 +335,21 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
     public void registerPostStageCallback(String stageId, StageCallback callback) {
         super.registerPostStageCallback(stageId, callback);
         stageWrappers.forEach(stageWrapper -> stageWrapper.registerPostStageCallback(stageId, callback));
+    }
+
+    public ExecutionContext.Status getStatus() {
+        if (getContext() == null) {
+            return ExecutionContext.Status.UNDEFINED;
+        }
+        return getContext().getStatus();
+
+    }
+
+    public List<ExecutionContext.Event> getEventLog() {
+        if (getContext() == null) {
+            return Collections.EMPTY_LIST;
+        }
+        return getContext().getEventLog();
     }
 }
 

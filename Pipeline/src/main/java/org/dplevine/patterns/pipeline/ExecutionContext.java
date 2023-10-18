@@ -1,5 +1,12 @@
 package org.dplevine.patterns.pipeline;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -13,9 +20,11 @@ import java.util.*;
  * @since 1.0
  */
 public class ExecutionContext {
-
+    @JsonProperty(required = true)
     private Status status = ExecutionContext.Status.UNDEFINED;
+    @JsonIgnore
     private final Map<String, Object> objects = Collections.synchronizedMap(new HashMap<>());
+    @JsonProperty(required = true)
     private final List<Event> eventLog = new Vector<>();
 
     public enum Status {
@@ -35,9 +44,13 @@ public class ExecutionContext {
     }
 
     public static class Event {
+        @JsonProperty(required = true)
         private final String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date());
+        @JsonProperty(required = true)
         private final String id;
+        @JsonProperty(required = true)
         private final String eventType;
+        @JsonProperty(required = true)
         private final String details;
 
         Event(String id, String eventType, String details) {
@@ -70,7 +83,12 @@ public class ExecutionContext {
 
         @Override
         public String toString() {
-            return "Timestamp: " + timestamp + "\t\t\t\tId: " + id + "\t\t\t\tEventType: " + eventType + "\t\t\t\tDetails: " + details + "\n";
+            try {
+                return new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(this);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+            return "{}";
         }
     }
 
@@ -148,5 +166,15 @@ public class ExecutionContext {
             }
         }
         return lastEvent;
+    }
+
+    @Override
+    public String toString() {
+        try {
+            return new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return "{}";
     }
 }

@@ -89,6 +89,14 @@ class StageWrapper implements Stage {
         return id;
     }
 
+    void clearInitCallbacks() {
+        initCallbacks.clear();
+    }
+
+    void clearCloseCallbacks() {
+        closeCallbacks.clear();
+    }
+
     void registerInitCallback(StageWrapperCallback callback) {
         initCallbacks.add(callback);
     }
