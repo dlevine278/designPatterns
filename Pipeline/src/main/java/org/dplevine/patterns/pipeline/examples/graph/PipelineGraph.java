@@ -19,7 +19,7 @@ public class PipelineGraph {
     static final String GRAPH_PATHNAME = "/tmp/pipelinegraph";
     static final Pipeline.ImageType GRAPH_TYPE = Pipeline.ImageType.GIF;
 
-    static class TimerContext extends ExecutionContext {
+    public static class TimerContext extends ExecutionContext {
         public static final String MAX_DELAY_SECONDS = "MaxDelay";
         public static final String PIPELINE = "Pipeline";
 
