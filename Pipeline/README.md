@@ -1,7 +1,7 @@
 **Pipeline**
 
 
-**_Background and Motivation_**
+<br>**_Background and Motivation_**
 
 > **_What is a Pipeline_**
 > The pipeline design pattern promotes separation of concerns and improves maintainability by encapsulating each step's logic in a separate component or class. 
@@ -35,7 +35,9 @@
 >>_**PipelineSpecification:**_ The PipelineSpecification class is used to define a set of elements that collectively describe a pipeline's configuration.  
 > Instances of this can be directly be created within your java code to dynamically construct piplines and/or are created under the covers by the PipelineBuilder class as part of parsing JSON and/or YAML pipeline specifications.
 
-**_How to Build_**
+
+
+<br>**_How to Build_**
 
 This project is a Maven project. 
 
@@ -139,7 +141,8 @@ This project is a Maven project.
         </dependency>
 ```
 
-_**How to Implement Pipelines**_
+
+<br>_**How to Implement Pipelines**_
 
 > _**Declaring Pipelines using JSON or YAML**_
 > 
@@ -284,46 +287,49 @@ _**How to Implement Pipelines**_
 >>> fastFail
 >>> 
 >>> Detached vs. Same-Thread 
-> 
-_**How to Monitor Pipeline Execution and Status**_
+>
+<br>_**How to Monitor Pipeline Execution and Status**_
 >_**Rendering Pipelines**_
 > 
 > _**Callbacks**_
 > 
 > _**Event Log**_
 >
-**_Putting It All Together: Hello World!_**
+
+
+
+<br>**_Putting It All Together: Hello World!_**
 
 Here's the source code for a simple two stage pipeline that prints out Hello World! to the console. 
 >```
->package org.dplevine.patterns.pipeline.examples.helloworld;
->import org.dplevine.patterns.pipeline.*;
+>package org.dplevine.patterns.pipeline.examples.json;
 >
->import java.util.ArrayList;
->import java.util.Arrays;
+>import org.dplevine.patterns.pipeline.*;
+>import java.net.URL;
 >
 >/**
->*
->The HelloWorld class demonstrates the use of your pipeline framework to create a simple "Hello, World" pipeline programmatically.
->*/
->public class HelloWorld {
+>* The JsonExample class demonstrates the use of your pipeline framework by creating a simple
+>* "Hello, World" pipeline from a JSON configuration file.
+>  */
+>  public class JsonExample {
 >
+>  static final String PIPELINE_JSON = "/helloWorld.json";
 >
->    static class HelloWorldContext extends ExecutionContext {
->       public static final String MESSAGE = "HELLO_WORLD_MESSAGE";
+>  static class HelloWorldContext extends ExecutionContext {
+>  public static final String MESSAGE = "HELLO_WORLD_MESSAGE";
 >
->        public HelloWorldContext() {
->            super();
->        }
+>       public HelloWorldContext() {
+>           super();
+>       }
 >
->        public String getMessage() {
->            return (String) getObject(MESSAGE);
->        }
+>       public String getMessage() {
+>           return (String) getObject(MESSAGE);
+>       }
 >
->        public void setMessage(String message) {
->            addObject(MESSAGE, message);
->        }
->    }
+>       public void setMessage(String message) {
+>           addObject(MESSAGE, message);
+>       }
+>  }
 >
 >
 >    public static class Hello implements Stage, StageBuilder {
@@ -331,16 +337,14 @@ Here's the source code for a simple two stage pipeline that prints out Hello Wor
 >
 >        @Override
 >        public ExecutionContext doWork(ExecutionContext context) throws Exception {
->            HelloWorldContext  hwContext = (HelloWorldContext) context;
->
+>            JsonExample.HelloWorldContext hwContext = (JsonExample.HelloWorldContext) context;
 >            hwContext.setMessage("Hello ");
->
 >            return context;
 >        }
 >
 >        @Override
 >        public Stage buildStage() {
->            return new Hello();
+>            return new JsonExample.Hello();
 >        }
 >    }
 >
@@ -351,41 +355,32 @@ Here's the source code for a simple two stage pipeline that prints out Hello Wor
 >
 >        @Override
 >        public ExecutionContext doWork(ExecutionContext context) throws Exception {
->            HelloWorldContext  hwContext = (HelloWorldContext) context;
->
+>            JsonExample.HelloWorldContext hwContext = (JsonExample.HelloWorldContext) context;
 >            String message = hwContext.getMessage();
->
 >            hwContext.setMessage(message + "World!");
->
 >            return context;
 >        }
 >
 >        @Override
 >        public Stage buildStage() {
->            return new World();
+>            return new JsonExample.World();
 >        }
 >    }
 >
->
 >    public static void main(String args[]) throws Exception {
 >        PipelineBuilder builder = PipelineBuilder.createBuilder();
->        PipelineSpecification spec = new PipelineSpecification();
->        spec.setId("HelloWorld Example");
 >
->        PipelineSpecification.StageDefinition stage1 = new PipelineSpecification.StageDefinition("stage 1", Hello.class.getName());
->        PipelineSpecification.StageDefinition stage2 = new PipelineSpecification.StageDefinition("stage 2", World.class.getName());
->        spec.setStages(new ArrayList<>(Arrays.asList(stage1, stage2)));
->        spec.setSteps(new ArrayList<>(Arrays.asList("stage 1", "stage 2")));
->
->        Pipeline pipeline = builder.buildFromPipelineSpecification(spec);
->
->        HelloWorldContext context = new HelloWorldContext();
+>        URL url = JsonExample.class.getResource(PIPELINE_JSON);
+>        Pipeline pipeline = builder.buildFromPathName(url.getPath());
+>        JsonExample.HelloWorldContext context = new JsonExample.HelloWorldContext();
 >        pipeline.run(context);
 >        System.out.println(context.getMessage());
 >    }
 >}
 >```
->
+
+
+
 Here's the JSON doc referenced by the sample above, specifying how the pipeline is constructed:
 >```
 >{
