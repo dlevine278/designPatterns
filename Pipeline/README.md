@@ -13,28 +13,28 @@
 > 
 > My implementation of the pipeline pattern consists of the following sub-constructs:
 > 
->>_**Execution Context:**_ The ExecutionContext class is the primary data structure used throughout the pipeline for passing data (i.e., DTO) and maintaining a log of events during the execution of a pipeline. The class contains methods that stages can use to add and access data to the Execution Context. See https://github.com/dlevine278/designPatterns/blob/main/Pipeline/src/main/java/org/dplevine/patterns/pipeline/ExecutionContext.java
+>>_**[Execution Context](https://github.com/dlevine278/designPatterns/blob/main/Pipeline/src/main/java/org/dplevine/patterns/pipeline/ExecutionContext.java):**_ The ExecutionContext class is the primary data structure used throughout the pipeline for passing data (i.e., DTO) and maintaining a log of events during the execution of a pipeline. The class contains methods that stages can use to add and access data to the Execution Context. 
 >
->>_**Stage:**_ A Stage is a simple interface that defines a generic method that can be implemented by various stages or steps in a pipeline. 
+>>_**[Stage](https://github.com/dlevine278/designPatterns/blob/main/Pipeline/src/main/java/org/dplevine/patterns/pipeline/Stage.java):**_ A Stage is a simple interface that defines a generic method that can be implemented by various stages or steps in a pipeline. 
 > Each stage will take an input ExecutionContext, perform some work, and return an updated ExecutionContext. 
 > The use of exceptions indicates that errors can occur during the execution of a stage.  Any class that is to be defined as part of a pipeline implements this interface.
-> See https://github.com/dlevine278/designPatterns/blob/main/Pipeline/src/main/java/org/dplevine/patterns/pipeline/Stage.java
 > 
->> _**StageBuilder:**_ The StageBuiler interface is used for building and configuring stages in a pipeline (i.e., factory pattern). By implementing this interface, classes provide custom logic for creating instances of the Stage interface, 
-> potentially with specific configuration parameters or settings. See https://github.com/dlevine278/designPatterns/blob/main/Pipeline/src/main/java/org/dplevine/patterns/pipeline/StageBuilder.java
 > 
->>_**Parallel:**_ The Parallel is a framework class that can be defined as a pipeline stage that allows the execution of multiple Pipeline instances concurrently. 
-> It allows you to define stages that are comprised of a group of pipelines to run in parallel and manages their execution. See https://github.com/dlevine278/designPatterns/blob/main/Pipeline/src/main/java/org/dplevine/patterns/pipeline/Parallel.java
+>> _**[StageBuilder](https://github.com/dlevine278/designPatterns/blob/main/Pipeline/src/main/java/org/dplevine/patterns/pipeline/StageBuilder.java):**_ The StageBuiler interface is used for building and configuring stages in a pipeline (i.e., factory pattern). By implementing this interface, classes provide custom logic for creating instances of the Stage interface, 
+> potentially with specific configuration parameters or settings. 
+> 
+>>_**[Parallel](https://github.com/dlevine278/designPatterns/blob/main/Pipeline/src/main/java/org/dplevine/patterns/pipeline/Parallel.java):**_ The Parallel is a framework class that can be defined as a pipeline stage that allows the execution of multiple Pipeline instances concurrently. 
+> It allows you to define stages that are comprised of a group of pipelines to run in parallel and manages their execution. 
 > 
 >>_**Step:**_
 > 
->>_**Pipeline:**_ The Pipeline class is responsible for executing a series of stage instances in a specific order (i.e., Steps). It ensures that the stages are executed in a topological order, making it suitable for scenarios where stages have dependencies on one another. See https://github.com/dlevine278/designPatterns/blob/main/Pipeline/src/main/java/org/dplevine/patterns/pipeline/Pipeline.java
+>>_**[Pipeline](https://github.com/dlevine278/designPatterns/blob/main/Pipeline/src/main/java/org/dplevine/patterns/pipeline/Pipeline.java):**_ The Pipeline class is responsible for executing a series of stage instances in a specific order (i.e., Steps). It ensures that the stages are executed in a topological order, making it suitable for scenarios where stages have dependencies on one another. 
 >
->>_**PipelineBuilder:**_ The PipelineBuilder class is a factory responsible for constructing pipelines based on different input sources, such as JSON or YAML files or a PiplineSpecification object.  
-> It encapsulates the work required to assemble and wire together pipelines. See https://github.com/dlevine278/designPatterns/blob/main/Pipeline/src/main/java/org/dplevine/patterns/pipeline/PipelineBuilder.java
+>>_**[PipelineBuilder](https://github.com/dlevine278/designPatterns/blob/main/Pipeline/src/main/java/org/dplevine/patterns/pipeline/PipelineBuilder.java):**_ The PipelineBuilder class is a factory responsible for constructing pipelines based on different input sources, such as JSON or YAML files or a PiplineSpecification object.  
+> It encapsulates the work required to assemble and wire together pipelines. 
 >
->>_**PipelineSpecification:**_ The PipelineSpecification class is used to define a set of elements that collectively describe a pipeline's configuration.  
-> Instances of this can be directly be created within your java code to dynamically construct piplines and/or are created under the covers by the PipelineBuilder class as part of parsing JSON and/or YAML pipeline specifications. See https://github.com/dlevine278/designPatterns/blob/main/Pipeline/src/main/java/org/dplevine/patterns/pipeline/PipelineSpecification.java
+>>_**[PipelineSpecification](https://github.com/dlevine278/designPatterns/blob/main/Pipeline/src/main/java/org/dplevine/patterns/pipeline/PipelineSpecification.java):**_ The PipelineSpecification class is used to define a set of elements that collectively describe a pipeline's configuration.  
+> Instances of this can be directly be created within your java code to dynamically construct piplines and/or are created under the covers by the PipelineBuilder class as part of parsing JSON and/or YAML pipeline specifications.
 
 
 
