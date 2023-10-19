@@ -19,7 +19,7 @@ public class ParallelTest {
     @Test
     public void testAddPipeline() {
         Pipeline pipeline = Mockito.mock(Pipeline.class);
-        parallel.addPipeline(pipeline);
+        parallel.addParallelPipeline(pipeline);
         assertTrue(parallel.getParallelPipelines().contains(pipeline));
     }
 
@@ -31,7 +31,7 @@ public class ParallelTest {
         pipelines.add(pipeline1);
         pipelines.add(pipeline2);
 
-        parallel.addPipelines(pipelines);
+        parallel.addParallelPipelines(pipelines);
         assertTrue(parallel.getParallelPipelines().contains(pipeline1));
         assertTrue(parallel.getParallelPipelines().contains(pipeline2));
     }
@@ -46,8 +46,8 @@ public class ParallelTest {
         Pipeline pipeline2 = Mockito.mock(Pipeline.class);
 
         // Set up the parallelPipelines list
-        parallel.addPipeline(pipeline1);
-        parallel.addPipeline(pipeline2);
+        parallel.addParallelPipeline(pipeline1);
+        parallel.addParallelPipeline(pipeline2);
 
         // Define expected behavior of the mocked Pipelines
         Mockito.when(pipeline1.call()).thenReturn(context);

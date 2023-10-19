@@ -33,20 +33,25 @@ final class Parallel extends StageWrapper { // will change visibility once the b
         this.fastFail = fastFail;
     }
 
-    Parallel addPipeline(Pipeline parallelPipeline) {
+    Parallel addParallelPipeline(Pipeline parallelPipeline) {
         parallelPipelines.add(parallelPipeline);
         return this;
     }
 
     // or we can add lists stages
-    Parallel addPipelines(List<Pipeline> parallelPipelines) {
+    Parallel addParallelPipelines(List<Pipeline> parallelPipelines) {
         this.parallelPipelines.addAll(parallelPipelines);
         return this;
     }
 
+    List<Pipeline> getParallelPipelines() {
+        return parallelPipelines;
+    }
+
     @Override
     final ExecutionContext init(ExecutionContext context) throws Exception {
-        context = super.init(context);
+        context = super.init(context); // must always call super's init first (invokes callbacks)
+
         setStage(this);
         futures = null;
         executorService = Executors.newFixedThreadPool(THREADPOOL_SIZE); // this is what manages the concurrency
@@ -55,7 +60,8 @@ final class Parallel extends StageWrapper { // will change visibility once the b
 
     @Override
     final ExecutionContext close(ExecutionContext context) throws Exception {
-        context = super.close(context);
+        context = super.close(context); // must always call super's close first (invokes callbacks)
+
         executorService.shutdown();  // clean up all the threads (after execution has completed)
         if (fastFail && futures != null) {
             for (Future<ExecutionContext> future : futures) {
@@ -109,9 +115,5 @@ final class Parallel extends StageWrapper { // will change visibility once the b
     void registerPostStageCallback(String stageId, StageCallback callback) {
         super.registerPostStageCallback(stageId, callback);
         parallelPipelines.forEach(pipeline -> pipeline.registerPostStageCallback(stageId, callback));
-    }
-
-    List<Pipeline> getParallelPipelines() {
-        return parallelPipelines;
     }
 }

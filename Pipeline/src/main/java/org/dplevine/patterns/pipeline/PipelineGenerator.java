@@ -128,7 +128,7 @@ class PipelineGenerator implements Stage {
         // add the sub-piplines to the parallels
         for(PipelineSpecification.ParallelDefinition parallelDef : spec.getParallels()) {
             Parallel parallel = (Parallel) vertices.get(parallelDef.getId()).getStage();
-            parallelDef.getParallelPipelines().forEach(parallelPipelineDef -> parallel.addPipeline((Pipeline) vertices.get(parallelPipelineDef.getId()).getStage()));
+            parallelDef.getParallelPipelines().forEach(parallelPipelineDef -> parallel.addParallelPipeline((Pipeline) vertices.get(parallelPipelineDef.getId()).getStage()));
         }
 
         return vertices;

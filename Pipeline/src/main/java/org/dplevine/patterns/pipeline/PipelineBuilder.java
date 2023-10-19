@@ -1,17 +1,9 @@
 package org.dplevine.patterns.pipeline;
 
-import java.io.File;
-import java.util.*;
-
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * The PipelineBuilder class is responsible for constructing pipelines based on different input sources,
  * such as file paths or pipeline specifications.
+ * The PipelineBuilder class takes a meta approach by creating a pipeline to build new pipelines (e.g., read definition, validate definition, create pipeline)
  */
 public final class PipelineBuilder {
 
