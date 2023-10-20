@@ -94,18 +94,6 @@ final class Parallel extends StageWrapper { // will change visibility once the b
     }
 
     @Override
-    String buildGraph(String root, Graph<String, DefaultEdge> pipelineGraph) {
-        String startId = this.getId() + PARALLEL_START_TAG;
-        String endId = this.getId() + PARALLEL_END_TAG;
-        pipelineGraph.addVertex(startId);
-        pipelineGraph.addVertex(endId);
-
-        pipelineGraph.addEdge(root, startId);
-        parallelPipelines.forEach(parallelPipeline -> pipelineGraph.addEdge(parallelPipeline.buildGraph(startId, pipelineGraph),endId));
-        return endId;
-    }
-
-    @Override
     void registerPreStageCallback(String stageId, StageCallback callback) {
         super.registerPreStageCallback(stageId, callback);
         parallelPipelines.forEach(pipeline -> pipeline.registerPreStageCallback(stageId, callback));
@@ -115,5 +103,18 @@ final class Parallel extends StageWrapper { // will change visibility once the b
     void registerPostStageCallback(String stageId, StageCallback callback) {
         super.registerPostStageCallback(stageId, callback);
         parallelPipelines.forEach(pipeline -> pipeline.registerPostStageCallback(stageId, callback));
+    }
+
+    // method for constructing the Parallel subgraph vertices and inbound edge as part of the overall pipeline graph
+    @Override
+    String buildGraph(String root, Graph<String, DefaultEdge> pipelineGraph) {
+        String startId = this.getId() + PARALLEL_START_TAG;
+        String endId = this.getId() + PARALLEL_END_TAG;
+        pipelineGraph.addVertex(startId);
+        pipelineGraph.addVertex(endId);
+
+        pipelineGraph.addEdge(root, startId);
+        parallelPipelines.forEach(parallelPipeline -> pipelineGraph.addEdge(parallelPipeline.buildGraph(startId, pipelineGraph),endId));
+        return endId;  // new root
     }
 }

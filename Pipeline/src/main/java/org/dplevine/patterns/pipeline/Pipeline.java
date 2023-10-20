@@ -247,16 +247,15 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
         return runner.run(this);
     }
 
-    public enum ImageType {
-        JPEG,
-        PNG,
-        BMP,
-        WBMP,
-        GIF,
+    // method called only on the root for constructing the graph representation of the defined pipeline
+    Graph<String, DefaultEdge> buildPiplineGraph() {
+        Graph<String, DefaultEdge> pipelineGraph = new DirectedMultigraph<>(DefaultEdge.class);
+        buildGraph(null, pipelineGraph);
+        return pipelineGraph;
     }
 
+    // method for constructing the Pipeline subgraph vertices and inbound edge as part of the overall pipeline graph
     @Override
-    //StageWrapper
     String buildGraph(String root, Graph<String, DefaultEdge> pipelineGraph) {
         String startId = this.getId() + PIPELINE_START_TAG;
         String endId = this.getId() + PIPELINE_END_TAG;
@@ -269,18 +268,21 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
         } else {
             pipelineGraph.addEdge(root, startId);
         }
-        for (StageWrapper stage : stageWrappers) {
-            subRoot = stage.buildGraph(subRoot, pipelineGraph);
+        for (StageWrapper stageWrapper : stageWrappers) {
+            subRoot = stageWrapper.buildGraph(subRoot, pipelineGraph);
         }
         pipelineGraph.addEdge(subRoot, endId);
 
-        return endId;
+        return endId;  // new root
     }
 
-    Graph<String, DefaultEdge> buildPiplineGraph() {
-        Graph<String, DefaultEdge> pipelineGraph = new DirectedMultigraph<>(DefaultEdge.class);
-        buildGraph(null, pipelineGraph);
-        return pipelineGraph;
+    // Methods and types for rendering the pipeline
+    public enum ImageType {
+        JPEG,
+        PNG,
+        BMP,
+        WBMP,
+        GIF,
     }
 
     public void render(String filepath, ImageType imageType) throws Exception {

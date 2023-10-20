@@ -83,12 +83,6 @@ class StageWrapper implements Stage {
         return context;
     }
 
-    String buildGraph(String root, Graph<String, DefaultEdge> pipelineGraph) {
-        pipelineGraph.addVertex(id);
-        pipelineGraph.addEdge(root, id);
-        return id;
-    }
-
     void clearInitCallbacks() {
         initCallbacks.clear();
     }
@@ -115,5 +109,12 @@ class StageWrapper implements Stage {
         if (id.equals(stageId)) {
             postStageCallbacks.add(callback);
         }
+    }
+
+    // method for constructing the StageWrapper vertex and inbound edge as part of the overall pipeline graph
+    String buildGraph(String root, Graph<String, DefaultEdge> pipelineGraph) {
+        pipelineGraph.addVertex(id);
+        pipelineGraph.addEdge(root, id);
+        return id; // new root
     }
 }
