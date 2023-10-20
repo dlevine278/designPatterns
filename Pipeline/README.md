@@ -1,9 +1,9 @@
-#**Pipeline Pattern**
+#  **Pipeline Pattern**
 
 
-##<br>**_Background and Motivation_**
+##  <br>**_Background and Motivation_**
 
-###> **_What is a Pipeline_**
+###  **_What is a Pipeline_**
  The pipeline design pattern promotes separation of concerns and improves maintainability by encapsulating each step's logic in a separate component or class. 
  It also enables the easiness in extensibility and flexibility as new steps can be added and existing steps can be modified without affecting the overall pipeline.
  
@@ -36,11 +36,11 @@ Instances of this can be directly be created within your java code to dynamicall
 
 
 
-##<br>**_How to Build_**
+##  <br>**_How to Build_**
 
 This project is a Maven project. 
 
-###>_**Dependencies:**_ 
+###  _**Dependencies:**_ 
 Please ensure the following dependencies are setup in your POM file
 
 _NOTE:_ with the exception of JUnit 5, you may modify the versions of these dependencies in order to avoid conflicts with older/newer versions of the same 
@@ -141,9 +141,9 @@ dependencies used in your larger project.
 ```
 
 
-##<br>_**How to Implement Pipelines**_
+##  <br>_**How to Implement Pipelines**_
 
-###> _**Declaring Pipelines using JSON or YAML**_
+###  _**Declaring Pipelines using JSON or YAML**_
  
 Sample JSON pipeline definition
 ```
@@ -222,7 +222,7 @@ Sample JSON pipeline definition
  }
 ```
  
- Sample YAML pipeline definition
+Sample YAML pipeline definition
  ```
  ---
  id: pipeline graph pipeline
@@ -266,7 +266,7 @@ Sample JSON pipeline definition
  - stage 5
 ```
  
-###> _**Declaring Pipelines at runtime in your Java code**_
+###  _**Declaring Pipelines at runtime in your Java code**_
 ```
         PipelineBuilder builder = PipelineBuilder.createBuilder();
         PipelineSpecification spec = new PipelineSpecification();
@@ -280,22 +280,22 @@ Sample JSON pipeline definition
         Pipeline pipeline = builder.buildFromPipelineSpecification(spec);
 ```
 
-##_**Running Pipelines**_
+##  _**Running Pipelines**_
  
-###_**Modes of Execution**_
-####fastFail
+###  _**Modes of Execution**_
+####  fastFail
  
-####Detached vs. Same-Thread 
+####  Detached vs. Same-Thread 
 >
-###_**How to Monitor Pipeline Execution and Status**_
-####_**Callbacks**_
+###  _**How to Monitor Pipeline Execution and Status**_
+####  _**Callbacks**_
  
-####_**Event Log**_
+####  _**Event Log**_
 
 
 
 
-##<br>**_Putting It All Together: Hello World!_**
+##  <br>**_Putting It All Together: Hello World!_**
 
 Here's the source code for a simple two stage pipeline that prints out Hello World! to the console. 
 ```
