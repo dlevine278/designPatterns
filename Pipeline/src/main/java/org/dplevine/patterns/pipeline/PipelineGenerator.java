@@ -89,8 +89,9 @@ class PipelineGenerator implements Stage {
 
         SimpleStageBuilder(String className) throws Exception {
             try {
-                ClassLoader appClassLoader = ClassLoader.getSystemClassLoader();
-                Class<?> clazz = appClassLoader.loadClass(className);
+                //ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+                ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+                Class<?> clazz = classLoader.loadClass(className);
                 this.stageBuilder = (StageBuilder) clazz.getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 throw new PipelineBuilderException("Could not construct a StageBuilder for class: " + className);
