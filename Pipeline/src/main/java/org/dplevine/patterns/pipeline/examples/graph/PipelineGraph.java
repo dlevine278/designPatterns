@@ -7,7 +7,7 @@ import java.util.concurrent.Future;
 
 
 /**
- * The PipelineGraph class demonstrates the use of your pipeline framework to create a pipeline with stages
+ * The PipelineGraph class demonstrates the use of the pipeline framework to create a pipeline with stages
  * involving timers and random exception as a means of showcasing how to visualize the pipeline's execution and
  * capture its event log for monitoring and debugging.
  */
@@ -78,7 +78,7 @@ public class PipelineGraph {
         pipeline.render(GRAPH_PATHNAME, GRAPH_TYPE);
         Thread.sleep(2000);
 
-        Future<ExecutionContext> future = pipeline.runDetached(context);
+        Future<ExecutionContext> future = pipeline.runDetached(context, true);
         while (!future.isDone()) {
             pipeline.render(GRAPH_PATHNAME, GRAPH_TYPE);
             Thread.sleep(2000);

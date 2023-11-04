@@ -1,21 +1,20 @@
 <component name="ArtifactManager">
-  <artifact name="Pipeline:jar">
+  <artifact type="jar" name="Pipeline:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/Pipeline_jar</output-path>
-    <root id="root">
-      <element id="archive" name="Pipeline.jar">
-        <element id="module-output" name="Pipeline" />
-      </element>
-      <element id="library" level="project" name="Maven: com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.2" />
-      <element id="library" level="project" name="Maven: com.github.vlsi.mxgraph:jgraphx:4.2.2" />
-      <element id="library" level="project" name="Maven: org.jgrapht:jgrapht-core:1.5.2" />
-      <element id="library" level="project" name="Maven: org.apfloat:apfloat:1.10.1" />
-      <element id="library" level="project" name="Maven: org.jgrapht:jgrapht-ext:1.5.2" />
-      <element id="library" level="project" name="Maven: org.yaml:snakeyaml:1.33" />
-      <element id="library" level="project" name="Maven: org.jheaps:jheaps:0.14" />
-      <element id="library" level="project" name="Maven: org.slf4j:slf4j-api:2.0.7" />
-      <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.14.2" />
-      <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-core:2.14.2" />
-      <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.14.2" />
+    <root id="archive" name="Pipeline.jar">
+      <element id="module-output" name="Pipeline" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/jgrapht/jgrapht-ext/1.5.2/jgrapht-ext-1.5.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/hamcrest/hamcrest-core/1.2.1/hamcrest-core-1.2.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/yaml/snakeyaml/1.26/snakeyaml-1.26.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/github/vlsi/mxgraph/jgraphx/4.2.2/jgraphx-4.2.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/apfloat/apfloat/1.10.1/apfloat-1.10.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/jgrapht/jgrapht-core/1.5.2/jgrapht-core-1.5.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/fasterxml/jackson/dataformat/jackson-dataformat-yaml/2.11.0/jackson-dataformat-yaml-2.11.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/jheaps/jheaps/0.14/jheaps-0.14.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/slf4j/slf4j-api/2.0.7/slf4j-api-2.0.7.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/fasterxml/jackson/core/jackson-annotations/2.11.0/jackson-annotations-2.11.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/fasterxml/jackson/core/jackson-core/2.11.0/jackson-core-2.11.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/fasterxml/jackson/core/jackson-databind/2.11.0/jackson-databind-2.11.0.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

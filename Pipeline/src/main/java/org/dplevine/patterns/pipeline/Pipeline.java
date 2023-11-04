@@ -35,18 +35,12 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
 
     private static final Logger logger = LoggerFactory.getLogger(Pipeline.class);
     private List<StageWrapper> stageWrappers = new Vector<>();
-    private Boolean fastFail = true; // true by default (i.e., pipeline will hault if a stage throws an exception)
     private ExecutionContext context;
     private ExecutorService executorService = null;  // used when running this pipeline (root) runs as a detached process (i.e., pipeline.runDetached(...))
 
     // ctors
     Pipeline(String id) {
         super(id);
-    }
-
-    Pipeline(String id, Boolean fastFail) {
-        super(id);
-        this.fastFail = fastFail;
     }
 
     //setters and getters
@@ -185,7 +179,7 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
             try {
                 runner.run(stagWrapper);
             } catch (Exception e) {
-                if (fastFail) {
+                if (context.getFastFail()) {
                     logger.error("stack trace: " + e.getLocalizedMessage());
                     throw new PipelineExecutionException(e);
                 }
@@ -194,10 +188,20 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
         return runner.getContext();
     }
 
+    public final ExecutionContext run(boolean fastFail) throws Exception {
+        ExecutionContext context = new ExecutionContext();
+        return run(context, fastFail);
+    }
+
     public final ExecutionContext run() throws Exception {
         ExecutionContext context = new ExecutionContext();
         run(context);
         return context;
+    }
+
+    public final ExecutionContext run(ExecutionContext context, boolean fastFail) throws Exception {
+        context.setFastFail(fastFail);
+        return run(context);
     }
 
     public final ExecutionContext run(ExecutionContext context) throws Exception {
@@ -218,11 +222,20 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
         return context;
     }
 
+    public final Future<ExecutionContext> runDetached(boolean fastFail) throws Exception {
+        ExecutionContext context = new ExecutionContext();
+        return runDetached(context, fastFail);
+    }
+
     public final Future<ExecutionContext> runDetached() throws Exception {
         ExecutionContext context = new ExecutionContext();
         return runDetached(context);
     }
 
+    public final Future<ExecutionContext> runDetached(ExecutionContext context, boolean fastFail) throws Exception {
+        context.setFastFail(fastFail);
+        return runDetached(context);
+    }
     public final Future<ExecutionContext> runDetached(ExecutionContext context) throws Exception {
         if (executorService != null) {
             throw new PipelineExecutionException("This pipeline was started but never shutdown; must invoke shutdownDetached() before running again.");

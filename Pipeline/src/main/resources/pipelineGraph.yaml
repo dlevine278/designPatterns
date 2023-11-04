@@ -1,6 +1,5 @@
 ---
 id: pipeline graph pipeline
-fastFail: false
 stages:
   - id: stage 0
     className: org.dplevine.patterns.pipeline.examples.graph.PipelineGraph$TimerStage

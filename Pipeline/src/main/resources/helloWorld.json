@@ -1,6 +1,5 @@
 {
   "id" : "hello world pipeline",
-  "fastFail" : true,
   "stages" : [
     {
       "id" : "hello",

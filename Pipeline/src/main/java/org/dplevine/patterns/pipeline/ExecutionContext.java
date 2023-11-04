@@ -24,6 +24,8 @@ public class ExecutionContext {
     private final Map<String, Object> objects = Collections.synchronizedMap(new HashMap<>());
     @JsonProperty(required = true)
     private final List<Event> eventLog = new Vector<>();
+    @JsonIgnore
+    private boolean fastFail = true; // true by default
 
     public enum Status {
         SUCCESS,
@@ -141,6 +143,14 @@ public class ExecutionContext {
 
     public Status getStatus() {
         return status;
+    }
+
+    boolean getFastFail() {
+        return fastFail;
+    }
+
+    void setFastFail(boolean fastFail) {
+        this.fastFail = fastFail;
     }
 
     public List<Event> getExceptionEvents() {

@@ -10,7 +10,7 @@ public class PipelineTest {
 
     @Before
     public void setUp() {
-        pipeline = new Pipeline("testPipeline", true); // Adjust the constructor parameters as needed
+        pipeline = new Pipeline("testPipeline"); // Adjust the constructor parameters as needed
     }
 
     @Test

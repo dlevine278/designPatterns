@@ -26,8 +26,6 @@ public final class PipelineSpecification {
     private List<ParallelDefinition> parallels = new Vector<>();
     @JsonProperty(required = true)
     private List<String> steps = new Vector<>();
-    @JsonProperty
-    private Boolean fastFail = true;  //true by default
 
     private List<PipelineDefinition> pipelines = new Vector<>();
 
@@ -217,10 +215,6 @@ public final class PipelineSpecification {
         return steps;
     }
 
-    public Boolean getFastFail() {
-        return fastFail;
-    }
-
     public void setId(String id) {
         this.id = id;
     }
@@ -243,9 +237,5 @@ public final class PipelineSpecification {
 
     public void setSteps(List<String> steps) {
         this.steps = steps;
-    }
-
-    public void setFastFail(Boolean fastFail) {
-        this.fastFail = fastFail;
     }
 }

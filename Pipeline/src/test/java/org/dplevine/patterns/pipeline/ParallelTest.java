@@ -13,7 +13,7 @@ public class ParallelTest {
 
     @Before
     public void setUp() {
-        parallel = new Parallel("testParallel", true);
+        parallel = new Parallel("testParallel");
     }
 
     @Test

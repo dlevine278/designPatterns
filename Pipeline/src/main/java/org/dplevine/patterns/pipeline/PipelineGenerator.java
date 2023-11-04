@@ -89,7 +89,6 @@ class PipelineGenerator implements Stage {
 
         SimpleStageBuilder(String className) throws Exception {
             try {
-                //ClassLoader classLoader = ClassLoader.getSystemClassLoader();
                 ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
                 Class<?> clazz = classLoader.loadClass(className);
                 this.stageBuilder = (StageBuilder) clazz.getDeclaredConstructor().newInstance();
@@ -117,8 +116,8 @@ class PipelineGenerator implements Stage {
         for (PipelineSpecification.StageDefinition stageDef : spec.getStages()) {
             vertices.put(stageDef.getId(), new PipelineVertex(stageDef.getId(), new SimpleStageBuilder(stageDef.getClassName()).newStage(stageDef.getId()), StageType.Simple));
         }
-        spec.getPipelines().forEach(pipelineDef -> vertices.put(pipelineDef.getId(),  new PipelineVertex(pipelineDef.getId(), new Pipeline(pipelineDef.getId(), spec.getFastFail()), StageType.Pipeline)));
-        spec.getParallels().forEach(parallelDef -> vertices.put(parallelDef.getId(), new PipelineVertex(parallelDef.getId(), new Parallel(parallelDef.getId(), spec.getFastFail()), StageType.Parallel)));
+        spec.getPipelines().forEach(pipelineDef -> vertices.put(pipelineDef.getId(),  new PipelineVertex(pipelineDef.getId(), new Pipeline(pipelineDef.getId()), StageType.Pipeline)));
+        spec.getParallels().forEach(parallelDef -> vertices.put(parallelDef.getId(), new PipelineVertex(parallelDef.getId(), new Parallel(parallelDef.getId()), StageType.Parallel)));
 
         // add the stages to the sub-piplines
         for(PipelineSpecification.PipelineDefinition pipelineDef : spec.getPipelines()) {
@@ -141,7 +140,7 @@ class PipelineGenerator implements Stage {
 
 
         // 0. create an empty pipeline
-        Pipeline pipeline = new Pipeline(spec.getId(), spec.getFastFail());
+        Pipeline pipeline = new Pipeline(spec.getId());
 
 
         // 1. verify that it is acyclic
