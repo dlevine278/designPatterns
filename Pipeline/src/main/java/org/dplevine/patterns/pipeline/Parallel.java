@@ -17,13 +17,14 @@ import java.util.concurrent.Future;
  * It allows the definition of a group of pipelines to run in parallel and manage their execution.
  */
 final class Parallel extends StageWrapper { // will change visibility once the builder is complete
-    private final int THREADPOOL_SIZE = 10;  // size of threadpool = number of concurrent pipelines that can run at any given time
-    private final String PARALLEL_START_TAG  = " - <Parallel>";
-    private final String PARALLEL_END_TAG = " - </Parallel>";
+
+    private static final int THREADPOOL_SIZE = 10;  // size of threadpool = number of concurrent pipelines that can run at any given time
+    static final String PARALLEL_START_TAG  = " - <Parallel>";
+    static final String PARALLEL_END_TAG = " - </Parallel>";
+    private static final Logger logger = LoggerFactory.getLogger(Parallel.class);
 
     private ExecutorService executorService;
     private List<Future<ExecutionContext>> futures;
-    private static final Logger logger = LoggerFactory.getLogger(Parallel.class);
     private final List<Pipeline> parallelPipelines = new Vector<>();
 
     //ctors

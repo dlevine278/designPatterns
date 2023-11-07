@@ -167,6 +167,9 @@ public class ExecutionContext {
 
     public Event getLastStageEvent(String id) {
         Event lastEvent = null;
+        if (id == null) {
+            return lastEvent;
+        }
 
         for (int i = eventLog.size(); i > 0; i--) {
             if (eventLog.get(i-1).getId().equals(id)) {

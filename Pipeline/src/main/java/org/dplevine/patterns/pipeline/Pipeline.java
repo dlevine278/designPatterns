@@ -30,10 +30,10 @@ import java.util.concurrent.*;
  */
 public final class Pipeline extends StageWrapper implements Callable<ExecutionContext> {
 
-    private final String PIPELINE_START_TAG  = " - <Pipeline>";
-    private final String PIPELINE_END_TAG = " - </Pipeline>";
-
+    private static final String PIPELINE_START_TAG  = " - <Pipeline>";
+    private static final String PIPELINE_END_TAG = " - </Pipeline>";
     private static final Logger logger = LoggerFactory.getLogger(Pipeline.class);
+
     private List<StageWrapper> stageWrappers = new Vector<>();
     private ExecutionContext context;
     private ExecutorService executorService = null;  // used when running this pipeline (root) runs as a detached process (i.e., pipeline.runDetached(...))
@@ -333,33 +333,50 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
         List<ExecutionContext.Event> eventLog = context.getEventLog();
         for(String vertexId : pipelineGraph.vertexSet()) {
             mxICell cell = nodeMap.get(vertexId);
-            for(int i = eventLog.size() - 1; i >=0; i--) {
-                ExecutionContext.Event event = eventLog.get(i);
-                if (vertexId.contains(event.getId())) {
-                    switch (event.getEventType()) {
-                        case ExecutionContext.EventType.CALLED_STAGE:
-                        case ExecutionContext.EventType.SUCCESS:
-                            greens.add(cell);
-                            break;
+            String stageId;
 
-                        case ExecutionContext.EventType.PIPELINE_IN_PROGRESS:
-                        case ExecutionContext.EventType.CALLING_STAGE:
-                            yellows.add(cell);
-                            break;
-
-                        case ExecutionContext.EventType.FAILURE:
-                        case ExecutionContext.EventType.EXCEPTION:
-                            reds.add(cell);
-                            break;
-                    }
+            if (vertexId.contains(PIPELINE_START_TAG)) {
+                stageId = vertexId.substring(0, vertexId.length() - PIPELINE_START_TAG.length());
+                if (stageId.equals(this.getId())) {
+                    roots.add(cell);
+                } else {
+                    pipelines.add(cell);
                 }
-            }
-            if (vertexId.contains(this.getId())) {
-                roots.add(cell);
-            } else if (vertexId.contains("Pipeline>")) {
-                pipelines.add(cell);
-            } else if (vertexId.contains("Parallel>")) {
+            } else if (vertexId.contains(PIPELINE_END_TAG)) {
+                stageId = vertexId.substring(0, vertexId.length() - PIPELINE_END_TAG.length());
+                if (stageId.equals(this.getId())) {
+                    roots.add(cell);
+                } else {
+                    pipelines.add(cell);
+                }
+            } else if (vertexId.contains(Parallel.PARALLEL_START_TAG)) {
+                stageId = vertexId.substring(0, vertexId.length() - Parallel.PARALLEL_START_TAG.length());
                 parallels.add(cell);
+            } else if (vertexId.contains(Parallel.PARALLEL_END_TAG)) {
+                stageId = vertexId.substring(0, vertexId.length() - Parallel.PARALLEL_END_TAG.length());
+                parallels.add(cell);
+            } else {
+                stageId = vertexId;
+            }
+
+            ExecutionContext.Event event = context.getLastStageEvent(stageId);
+            if (event != null) {
+                switch (event.getEventType()) {
+                    case ExecutionContext.EventType.CALLED_STAGE:
+                    case ExecutionContext.EventType.SUCCESS:
+                        greens.add(cell);
+                        break;
+
+                    case ExecutionContext.EventType.PIPELINE_IN_PROGRESS:
+                    case ExecutionContext.EventType.CALLING_STAGE:
+                        yellows.add(cell);
+                        break;
+
+                    case ExecutionContext.EventType.FAILURE:
+                    case ExecutionContext.EventType.EXCEPTION:
+                        reds.add(cell);
+                        break;
+                }
             }
         }
 
