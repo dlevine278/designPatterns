@@ -179,10 +179,8 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
             try {
                 runner.run(stagWrapper);
             } catch (Exception e) {
-                if (context.getFastFail()) {
-                    logger.error("stack trace: " + e.getLocalizedMessage());
-                    throw new PipelineExecutionException(e);
-                }
+                logger.error("stack trace: " + e.getLocalizedMessage());
+                throw new PipelineExecutionException(e);
             }
         }
         return runner.getContext();

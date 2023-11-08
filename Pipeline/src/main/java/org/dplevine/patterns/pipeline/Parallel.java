@@ -77,7 +77,7 @@ final class Parallel extends StageWrapper { // will change visibility once the b
         parallelPipelines.forEach( parallelPipeline -> parallelPipelineIds.add(parallelPipeline.getId()));
         try {
             futures = executorService.invokeAll(parallelPipelines);  // execute all the pipelines being ran in parallel (order of execution is non-deterministic) - this is a blocking call
-            if (context.getFastFail() && futures != null) {
+            if (futures != null) {
                 for (Future<ExecutionContext> future : futures) {
                     future.get();  // will throw if one of the parallel pipelines threw
                 }

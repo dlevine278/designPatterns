@@ -10,8 +10,8 @@
 The main idea behind the pipeline pattern is to create a set of operations (stages) assembled and arranged in a linear and acyclic manner, and pass data through it as each stage 
 executes. Although the 'Chain of Responsibility' and the 'Decorator' design patterns
  can handle this task partially, the main power of the pipeline is that it’s flexible about the type of its result.  
- 
- My implementation of the pipeline pattern consists of the following sub-constructs:
+
+My implementation of the pipeline pattern consists of the following sub-constructs:
  
 - _**[Execution Context](https://github.com/dlevine278/designPatterns/blob/main/Pipeline/src/main/java/org/dplevine/patterns/pipeline/ExecutionContext.java):**_ The ExecutionContext class is the primary data structure used throughout the pipeline for passing data (i.e., DTO) and maintaining a log of events during the execution of a pipeline. The class contains methods that stages can use to add and access data to the Execution Context.
 <br><br>
@@ -33,6 +33,16 @@ It encapsulates the work required to assemble and wire together pipelines.
 <br><br>
 - _**[PipelineSpecification](https://github.com/dlevine278/designPatterns/blob/main/Pipeline/src/main/java/org/dplevine/patterns/pipeline/PipelineSpecification.java):**_ The PipelineSpecification class is used to define a set of elements that collectively describe a pipeline's configuration.  
 Instances of this can be directly be created within your java code to dynamically construct piplines and/or are created under the covers by the PipelineBuilder class as part of parsing JSON and/or YAML pipeline specifications.
+<br><br>
+  
+####  **_Demonstration_**
+To illustrate what a pipeline is and these constructs, I've created a simple demo that allows you to observe the execution of a simple pipeline.  All the stages in this demo are instances of the same type. 
+The implementation of the stage randomly sleep between 1 and 15 seconds and then randomly succeed or fail (i.e., throw an exception). 
+The demo can be ran in two different modes: fastFail = true (i.e., the pipeline will hault upon the first stage failure) or fastFail=false (i.e., the pipeline will run until all stages have been exectuted, regardless of any stage failures).<br>
+NOTE: This is a live demo, reloading the page will will produce different results.
+- _**[Demo: fastFail = true](http://patterns-demo-load-balancer-180659473.us-east-1.elb.amazonaws.com:8080/patterns/pipeline/demo?fastFail=true)**_
+- _**[Demo: fastFail = false](http://patterns-demo-load-balancer-180659473.us-east-1.elb.amazonaws.com:8080/patterns/pipeline/demo?fastFail=false)**_
+
 
 
 
@@ -149,7 +159,6 @@ Sample JSON pipeline definition
 ```
  {
   "id" : "Sample Pipeline JSON",
-  "fastFail" : false,
   "stages" : [
        {
         "id" : "stage 0",
@@ -226,7 +235,6 @@ Sample YAML pipeline definition
  ```
  ---
  id: pipeline graph pipeline
- fastFail: false
  stages:
  - id: stage 0
    className: org.dplevine.patterns.pipeline.examples.graph.PipelineGraph$TimerStage

@@ -37,10 +37,10 @@ public class ExecutionContext {
     public interface EventType {
         String PIPELINE_IN_PROGRESS = "PIPELINE_IN_PROGRESS";
         String CALLING_STAGE = "CALLING_STAGE";
-        String CALLED_STAGE = "CALLED_STAGE";
-        String SUCCESS = "SUCCESS";
-        String FAILURE = "FAILURE";
-        String EXCEPTION = "EXCEPTION";
+        String CALLED_STAGE = "STAGE_CALLED => SUCCEEDED";
+        String SUCCESS = "PIPELINE_SUCCEEDED";
+        String FAILURE = "PIPELINE_FAILED";
+        String EXCEPTION = "STAGE CALLED => EXCEPTION";
     }
 
     public static class Event {
