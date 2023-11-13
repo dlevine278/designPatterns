@@ -112,7 +112,7 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
 
             // set the status on the context accordingly now that the pipeline ran
             ExecutionContext.Event lastEvent = context.getLastStageEvent(root.getId());
-            if (lastEvent == null || lastEvent.getEventType() != ExecutionContext.EventType.EXCEPTION) {
+            if (lastEvent == null || !lastEvent.getEventType().equals(ExecutionContext.EventType.EXCEPTION)) {
                 context.setSuccess();
                 context.createEvent(root, ExecutionContext.EventType.SUCCESS, root.getClass().getCanonicalName() + ".run()");
             } else {
@@ -173,9 +173,8 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
         // 3. traverse the graph and invoke the stages along the way
         StageRunner runner = new StageRunner(context);
         Iterator<StageWrapper> iterator = new TopologicalOrderIterator<>(pipeline);
-        while (iterator.hasNext()) {
+        while (iterator.hasNext() && ! context.getFailNow()) {
             StageWrapper stagWrapper = iterator.next();
-
             try {
                 runner.run(stagWrapper);
             } catch (Exception e) {
@@ -326,7 +325,7 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
         Collection<mxICell> yellows = new Vector<>();
         Collection<mxICell> roots = new Vector<>();
         Collection<mxICell> parallels = new Vector<>();
-        Collection<mxICell> pipelines = new Vector();
+        Collection<mxICell> pipelines = new Vector<>();
 
         List<ExecutionContext.Event> eventLog = context.getEventLog();
         for(String vertexId : pipelineGraph.vertexSet()) {

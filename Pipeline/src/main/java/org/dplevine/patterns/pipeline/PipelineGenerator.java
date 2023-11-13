@@ -68,7 +68,6 @@ class PipelineGenerator implements Stage {
             String subPipelineStartId = pipelineDef.getId();
             for(String stepDef : pipelineDef.getSteps()) {
                 pipelineGraph.addEdge(subPipelineStartId, stepDef);
-                startId = stepDef;
             }
         }
 
@@ -77,7 +76,6 @@ class PipelineGenerator implements Stage {
             String parallelStartId = parallelDef.getId();
             for(PipelineSpecification.PipelineDefinition parallelPipelineDef : parallelDef.getParallelPipelines()) {
                 pipelineGraph.addEdge(parallelStartId, parallelPipelineDef.getId());
-                startId = parallelPipelineDef.getId();
             }
         }
 

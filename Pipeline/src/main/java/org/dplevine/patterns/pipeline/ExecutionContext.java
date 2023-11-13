@@ -26,6 +26,7 @@ public class ExecutionContext {
     private final List<Event> eventLog = new Vector<>();
     @JsonIgnore
     private boolean fastFail = true; // true by default
+    private boolean failNow = false; // set to true if a stage fails AND fastFail == true
 
     public enum Status {
         SUCCESS,
@@ -153,9 +154,21 @@ public class ExecutionContext {
         this.fastFail = fastFail;
     }
 
+    boolean getFailNow() {
+        synchronized (this) {
+            return failNow;
+        }
+    }
+
+    void setFailNow(boolean failNow) {
+        synchronized (this) {
+            this.failNow = failNow;
+        }
+    }
+
     public List<Event> getExceptionEvents() {
         List<Event> filteredEvents = new Vector<>();
-        eventLog.stream().filter(event -> event.getEventType() == EventType.EXCEPTION).forEach(event -> filteredEvents.add(event));
+        eventLog.stream().filter(event -> event.getEventType().equals(EventType.EXCEPTION)).forEach(event -> filteredEvents.add(event));
         return filteredEvents;
     }
 
@@ -166,9 +179,8 @@ public class ExecutionContext {
     }
 
     public Event getLastStageEvent(String id) {
-        Event lastEvent = null;
         if (id == null) {
-            return lastEvent;
+            return null;
         }
 
         for (int i = eventLog.size(); i > 0; i--) {
@@ -176,7 +188,7 @@ public class ExecutionContext {
                 return eventLog.get(i-1);
             }
         }
-        return lastEvent;
+        return null;
     }
 
     @Override

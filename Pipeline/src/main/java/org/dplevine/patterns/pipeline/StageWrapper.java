@@ -56,11 +56,6 @@ class StageWrapper implements Stage {
         for(StageWrapperCallback callback : initCallbacks) {
             callback.onEvent(this, context);
         }
-
-        for (StageCallback callback : preStageCallbacks) {
-            callback.onEvent(id, stage, context);
-        }
-
         return context;}
 
     // hook to allow the pipeline to do some cleanup - by default does nothing
@@ -68,12 +63,19 @@ class StageWrapper implements Stage {
         for(StageWrapperCallback callback : closeCallbacks) {
             callback.onEvent(this, context);
         }
-
-        for (StageCallback callback : postStageCallbacks) {
-            callback.onEvent(id, stage, context);
-        }
-
         return context;}
+
+    void doPreStageCallbacks(ExecutionContext context, StageCallback.StageEvent event) {
+        for (StageCallback callback : preStageCallbacks) {
+            callback.onEvent(id, stage, event, context);
+        }
+    }
+
+    void doPostStageCallbacks(ExecutionContext context, StageCallback.StageEvent event) {
+        for (StageCallback callback : postStageCallbacks) {
+            callback.onEvent(id, stage, event, context);
+        }
+    }
 
     @Override
     public ExecutionContext doWork(ExecutionContext context) throws Exception {

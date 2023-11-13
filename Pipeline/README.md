@@ -35,7 +35,7 @@ It encapsulates the work required to assemble and wire together pipelines.
 Instances of this can be directly be created within your java code to dynamically construct piplines and/or are created under the covers by the PipelineBuilder class as part of parsing JSON and/or YAML pipeline specifications.
 <br><br>
   
-####  **_Demonstration_**
+####  **_Live Demonstration_**
 To illustrate what a pipeline is and these constructs, I've created a simple demo that allows you to observe the execution of a simple pipeline.  All the stages in this demo are instances of the same type. 
 The implementation of the stage randomly sleep between 1 and 15 seconds and then randomly succeed or fail (i.e., throw an exception). 
 The demo can be ran in two different modes: fastFail = true (i.e., the pipeline will hault upon the first stage failure) or fastFail=false (i.e., the pipeline will run until all stages have been exectuted, regardless of any stage failures).<br>
@@ -389,7 +389,6 @@ Here's the JSON doc referenced by the sample above, specifying how the pipeline 
 ```
 {
  "id" : "hello world pipeline",
- "fastFail" : true,
  "stages" : [
     {
      "id" : "hello",
