@@ -40,8 +40,8 @@ To illustrate what a pipeline is and these constructs, I've created a simple dem
 The implementation of the stage randomly sleep between 1 and 15 seconds and then randomly succeed or fail (i.e., throw an exception). 
 The demo can be ran in two different modes: fastFail = true (i.e., the pipeline will hault upon the first stage failure) or fastFail=false (i.e., the pipeline will run until all stages have been exectuted, regardless of any stage failures).<br>
 NOTE: This is a live demo, reloading the page will will produce different results.
-- _**[Demo: fastFail = true](http://patterns-demo-load-balancer-542050703.us-east-1.elb.amazonaws.com:8080/patterns/pipeline/demo?fastFail=true)**_
-- _**[Demo: fastFail = false](http://patterns-demo-load-balancer-542050703.us-east-1.elb.amazonaws.com:8080/patterns/pipeline/demo?fastFail=false)**_
+- _**[Demo: fastFail = true](http://patterns-demo-load-balancer-542050703.us-east-1.elb.amazonaws.com:8080/patterns/pipeline?fastFail=true)**_
+- _**[Demo: fastFail = false](http://patterns-demo-load-balancer-542050703.us-east-1.elb.amazonaws.com:8080/patterns/pipeline?fastFail=false)**_
 
 
 
