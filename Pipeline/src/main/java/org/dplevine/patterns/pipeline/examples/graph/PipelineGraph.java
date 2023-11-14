@@ -78,7 +78,7 @@ public class PipelineGraph {
         pipeline.render(GRAPH_PATHNAME, GRAPH_TYPE);
         Thread.sleep(2000);
 
-        Future<ExecutionContext> future = pipeline.runDetached(context, true);
+        Future<ExecutionContext> future = pipeline.runDetached(context, false);
         while (!future.isDone()) {
             pipeline.render(GRAPH_PATHNAME, GRAPH_TYPE);
             Thread.sleep(2000);

@@ -1,6 +1,6 @@
 package org.dplevine.patterns.pipeline;
 
-public class  StageRunner {
+final class  StageRunner {
     ExecutionContext context;
 
     /**
@@ -16,7 +16,7 @@ public class  StageRunner {
     }
 
     ExecutionContext run(StageWrapper stageWrapper) throws Exception {
-        StageCallback.StageEvent event = StageCallback.StageEvent.PostStageCallbackSuccess;;
+        StageCallback.StageEvent event = StageCallback.StageEvent.PostStageCallbackSuccess;
         try {
             // call the wrapper init first
             stageWrapper.init(context);

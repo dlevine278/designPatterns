@@ -34,7 +34,7 @@ public final class Pipeline extends StageWrapper implements Callable<ExecutionCo
     private static final String PIPELINE_END_TAG = " - </Pipeline>";
     private static final Logger logger = LoggerFactory.getLogger(Pipeline.class);
 
-    private List<StageWrapper> stageWrappers = new Vector<>();
+    private final List<StageWrapper> stageWrappers = new Vector<>();
     private ExecutionContext context;
     private ExecutorService executorService = null;  // used when running this pipeline (root) runs as a detached process (i.e., pipeline.runDetached(...))
 

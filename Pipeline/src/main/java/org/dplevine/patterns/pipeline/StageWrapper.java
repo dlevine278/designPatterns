@@ -16,11 +16,11 @@ class StageWrapper implements Stage {
     private String id;
     private Stage stage;
 
-    private List<StageWrapperCallback> initCallbacks = new Vector<>();
-    private List<StageWrapperCallback> closeCallbacks = new Vector<>();
+    private final List<StageWrapperCallback> initCallbacks = new Vector<>();
+    private final List<StageWrapperCallback> closeCallbacks = new Vector<>();
 
-    private List<StageCallback> preStageCallbacks = new Vector<>();
-    private List<StageCallback> postStageCallbacks = new Vector<>();
+    private final List<StageCallback> preStageCallbacks = new Vector<>();
+    private final List<StageCallback> postStageCallbacks = new Vector<>();
 
     //ctor
     private StageWrapper() {}

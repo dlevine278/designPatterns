@@ -5,7 +5,7 @@ package org.dplevine.patterns.pipeline;
  * to execute custom logic at specific stages of execution.  This is not exposed outside of the framework.
  */
 abstract class StageWrapperCallback {
-    private StageWrapper stageWrapper;
+    private final StageWrapper stageWrapper;
 
     StageWrapperCallback(StageWrapper stageWrapper) {
         this.stageWrapper = stageWrapper;

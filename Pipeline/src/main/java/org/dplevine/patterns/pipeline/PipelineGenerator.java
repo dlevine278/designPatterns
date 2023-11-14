@@ -10,7 +10,7 @@ import java.util.*;
 /**
  * The PipelineGenerator class is responsible for generating a pipeline based on a provided PipelineSpecification.
  */
-class PipelineGenerator implements Stage {
+final class PipelineGenerator implements Stage {
 
     private enum StageType {
         Simple,
@@ -19,8 +19,8 @@ class PipelineGenerator implements Stage {
     }
 
     private static class PipelineVertex {
-        private String id;
-        private StageWrapper stage;
+        private final String id;
+        private final StageWrapper stage;
         StageType stageType;
 
         PipelineVertex(String id, StageWrapper stage, StageType stageType) {
@@ -83,7 +83,7 @@ class PipelineGenerator implements Stage {
     }
 
     static class SimpleStageBuilder {
-        private StageBuilder stageBuilder;
+        private final StageBuilder stageBuilder;
 
         SimpleStageBuilder(String className) throws Exception {
             try {
@@ -117,13 +117,13 @@ class PipelineGenerator implements Stage {
         spec.getPipelines().forEach(pipelineDef -> vertices.put(pipelineDef.getId(),  new PipelineVertex(pipelineDef.getId(), new Pipeline(pipelineDef.getId()), StageType.Pipeline)));
         spec.getParallels().forEach(parallelDef -> vertices.put(parallelDef.getId(), new PipelineVertex(parallelDef.getId(), new Parallel(parallelDef.getId()), StageType.Parallel)));
 
-        // add the stages to the sub-piplines
+        // add the stages to the sub-pipelines
         for(PipelineSpecification.PipelineDefinition pipelineDef : spec.getPipelines()) {
             Pipeline pipeline = (Pipeline) vertices.get(pipelineDef.getId()).getStage();
             pipelineDef.getSteps().forEach(stepDef -> pipeline.addStage(vertices.get(stepDef).getStage()));
         }
 
-        // add the sub-piplines to the parallels
+        // add the sub-pipelines to the parallels
         for(PipelineSpecification.ParallelDefinition parallelDef : spec.getParallels()) {
             Parallel parallel = (Parallel) vertices.get(parallelDef.getId()).getStage();
             parallelDef.getParallelPipelines().forEach(parallelPipelineDef -> parallel.addParallelPipeline((Pipeline) vertices.get(parallelPipelineDef.getId()).getStage()));

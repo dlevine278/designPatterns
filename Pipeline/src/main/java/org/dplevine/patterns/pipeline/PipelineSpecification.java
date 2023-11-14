@@ -3,6 +3,7 @@ package org.dplevine.patterns.pipeline;
 import java.util.List;
 import java.util.Vector;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -19,78 +20,24 @@ public final class PipelineSpecification {
     @JsonProperty(required = true)
     private String id;
     @JsonProperty
-    private List<OptionDefinition> options = new Vector<>();
-    @JsonProperty
     private List<StageDefinition> stages = new Vector<>();
     @JsonProperty
     private List<ParallelDefinition> parallels = new Vector<>();
     @JsonProperty(required = true)
     private List<String> steps = new Vector<>();
-
+    @JsonIgnore
     private List<PipelineDefinition> pipelines = new Vector<>();
-
 
 
     public PipelineSpecification() {
     }
 
-    PipelineSpecification(String id, List<OptionDefinition> options, List<StageDefinition> stages, List<PipelineDefinition> pipelines, List<ParallelDefinition> parallels, List<String> steps) {
+    PipelineSpecification(String id, List<StageDefinition> stages, List<PipelineDefinition> pipelines, List<ParallelDefinition> parallels, List<String> steps) {
         this.id = id;
-        this.options.addAll(options);
         this.stages.addAll(stages);
         this.pipelines.addAll(pipelines);
         this.parallels.addAll(parallels);
         this.steps.addAll(steps);
-    }
-
-    public static class OptionDefinition {
-        @JsonProperty(required = true)
-        private String name;
-        @JsonProperty(required = true)
-        private OptionType type;
-        @JsonProperty(required = true)
-        private String value;
-
-        public OptionDefinition() {
-        }
-
-        public OptionDefinition(String name, OptionType type, String value) {
-            this.name = name;
-            this.type = type;
-            this.value = value;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public void setType(OptionType type) {
-            this.type = type;
-        }
-
-        public void setValue(String value) {
-            this.value = value;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public OptionType getType() {
-            return type;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        public static enum OptionType {
-            STRING,
-            INTEGER,
-            DOUBLE,
-            DATETIME,
-            CUSTOM
-        }
     }
 
     public static class StageDefinition {
@@ -128,7 +75,7 @@ public final class PipelineSpecification {
         @JsonProperty(required = true)
         private String id;
         @JsonProperty(required = true)
-        private List<PipelineDefinition> parallelPipelines = new Vector<>();
+        private final List<PipelineDefinition> parallelPipelines = new Vector<>();
 
         public ParallelDefinition() {
         }
@@ -143,9 +90,9 @@ public final class PipelineSpecification {
         }
 
         public void setParallelPipelines(List<PipelineDefinition> parallelPipelines) {
-            for( int i = 0; i < parallelPipelines.size(); i++) {
-                parallelPipelines.get(i).setId(id + "[" + this.parallelPipelines.size() + "]");
-                this.parallelPipelines.add(parallelPipelines.get(i));
+            for (PipelineDefinition parallelPipeline : parallelPipelines) {
+                parallelPipeline.setId(id + "[" + this.parallelPipelines.size() + "]");
+                this.parallelPipelines.add(parallelPipeline);
             }
         }
 
@@ -192,10 +139,6 @@ public final class PipelineSpecification {
         return id;
     }
 
-    public List<OptionDefinition> getOptions() {
-        return options;
-    }
-
     public List<StageDefinition> getStages() {
         return stages;
     }
@@ -217,10 +160,6 @@ public final class PipelineSpecification {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public void setOptions(List<OptionDefinition> options) {
-        this.options = options;
     }
 
     public void setStages(List<StageDefinition> stages) {
