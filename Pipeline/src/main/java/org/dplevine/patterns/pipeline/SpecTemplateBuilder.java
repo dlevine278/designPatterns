@@ -15,16 +15,12 @@ public final class SpecTemplateBuilder {
 
 
     SpecTemplateBuilder(List<String> packages) {
-        if (packages == null) {
-            this.packages = new Vector<>();
-        } else {
-            this.packages = packages;
-        }
+        this.packages = Objects.requireNonNullElseGet(packages, Vector::new);
     }
 
     private static class StageBuilderDef {
-        private String id;
-        private String className;
+        private final String id;
+        private final String className;
 
         StageBuilderDef(String id, String className) {
             this.id = id;
@@ -42,8 +38,8 @@ public final class SpecTemplateBuilder {
 
 
     private static class PipelineStepsDef {
-        private String pipelineRootId;
-        private String parallelId;
+        private final String pipelineRootId;
+        private final String parallelId;
         private List<String> steps;
 
         PipelineStepsDef(String pipelineRootId, String parallelId, String[] steps) {
@@ -68,7 +64,7 @@ public final class SpecTemplateBuilder {
     }
 
     private interface ScannerFunc {
-        abstract void doWork(Class<?> clazz) throws Exception ;
+        void doWork(Class<?> clazz) throws Exception ;
     }
 
     private void packageScaner(String packageName, ScannerFunc func, Class<? extends Annotation> annotation) throws Exception {
@@ -77,14 +73,14 @@ public final class SpecTemplateBuilder {
         }
     }
 
-    private ScannerFunc scanForStageBuilders = (clazz) -> {
+    private final ScannerFunc scanForStageBuilders = (clazz) -> {
         for (StageBuilderDefinition stageBuilderDefinition : clazz.getAnnotation(StageBuilderDefinitions.class).value()) {
             StageBuilderDef stageBuilderDef = new StageBuilderDef(stageBuilderDefinition.id(), clazz.getName());
             stageBuilderDefs.put(stageBuilderDef.getId(), stageBuilderDef);
         }
     };
 
-    private ScannerFunc scanForPipelineSteps = (clazz) -> {
+    private final ScannerFunc scanForPipelineSteps = (clazz) -> {
         int parallelIndex = 0;
         for (PipelineStepsDefinition pipelineSteps : clazz.getAnnotation(PipelineStepsDefinitions.class).value()) {
             if (pipelineSteps.parallelId().equals("") && pipelineStepsDefs.containsKey(pipelineSteps.pipelineRootId())) {
