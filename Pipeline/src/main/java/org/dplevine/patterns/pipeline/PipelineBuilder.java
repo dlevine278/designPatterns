@@ -6,6 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The PipelineBuilder class is responsible for constructing pipelines based on different input sources,
@@ -17,17 +20,29 @@ public final class PipelineBuilder {
     private static final String JSON_SUFFIX = ".json";
     private static final String SPEC_GENERATOR_YAML = "Spec_Generator_YAML";
     private static final String YAML_SUFFIX = ".yaml";
+    private static final String SPEC_GENERATOR_ANNOTATIONS = "Spec_Generator_Annotations";
+    private static final String ANNOTATED_PIPELINE = "Annotated_Pipeline";
+    private static final String SCANNED_PACKAGES = "Scanned_Packages";
     private static final String SPEC_VALIDATOR = "Spec_Validator";
     private static final String PIPELINE_GENERATOR = "Pipeline_Generator";
     private static final String PIPELINE_BOOTSTRAPPER = "Bootstrap Pipeline Builder";
-
     private static final Logger logger = LoggerFactory.getLogger(PipelineBuilder.class);
+    private Map<String, PipelineSpecification> specTemplates = new ConcurrentHashMap<>();
 
     public static PipelineBuilder createBuilder() {
         return new PipelineBuilder();
     }
 
+    public static PipelineBuilder createBuilder(List<String> packages) throws Exception {
+        return new PipelineBuilder(packages);
+    }
+
     private PipelineBuilder() {
+    }
+
+    private PipelineBuilder(List<String> packages) throws  Exception {
+        SpecTemplateBuilder specTemplateBuilder = new SpecTemplateBuilder(packages);
+        specTemplates = specTemplateBuilder.specTemplatesFromAnnotations();
     }
 
     private final StageWrapper specFromJsonGenerator = new StageWrapper(SPEC_GENERATOR_JSON, (context) -> {
@@ -87,6 +102,24 @@ public final class PipelineBuilder {
 
     public Pipeline buildFromPipelineSpecification(PipelineSpecification spec) throws Exception {
         ExecutionContext context = new ExecutionContext();
+        context.addObject(BuilderContext.PIPELINE_SPEC, spec);
+
+        Pipeline builderPipeline = new Pipeline(PIPELINE_BOOTSTRAPPER);
+        builderPipeline.addStage(new StageWrapper(SPEC_VALIDATOR, new PipelineSpecValidator())).addStage(new StageWrapper(PIPELINE_GENERATOR, new PipelineGenerator()));
+        Pipeline pipeline = (Pipeline) builderPipeline.run(context).getObject(BuilderContext.PIPELINE);
+        if (pipeline == null) {
+            throw new PipelineBuilderException("Pipeline could not be generated");
+        }
+        return pipeline;
+    }
+
+    public Pipeline buildFromAnnotations(String pipelineId) throws Exception {
+        if (!specTemplates.containsKey(pipelineId)) {
+            throw new PipelineBuilderException("Pipeline could not be generated - unknown pipline");
+        }
+
+        ExecutionContext context = new ExecutionContext();
+        PipelineSpecification spec = specTemplates.get(pipelineId);
         context.addObject(BuilderContext.PIPELINE_SPEC, spec);
 
         Pipeline builderPipeline = new Pipeline(PIPELINE_BOOTSTRAPPER);

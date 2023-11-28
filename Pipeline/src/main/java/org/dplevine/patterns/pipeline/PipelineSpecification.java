@@ -32,12 +32,8 @@ public final class PipelineSpecification {
     public PipelineSpecification() {
     }
 
-    PipelineSpecification(String id, List<StageDefinition> stages, List<PipelineDefinition> pipelines, List<ParallelDefinition> parallels, List<String> steps) {
+    public PipelineSpecification(String id) {
         this.id = id;
-        this.stages.addAll(stages);
-        this.pipelines.addAll(pipelines);
-        this.parallels.addAll(parallels);
-        this.steps.addAll(steps);
     }
 
     public static class StageDefinition {
@@ -89,9 +85,18 @@ public final class PipelineSpecification {
             this.id = id;
         }
 
+        private synchronized String nextParallelPipelineId() {
+            return id + "[" + parallelPipelines.size() + "]";
+        }
+
+        public void addParallelPipeline(List<String> steps) {
+            String parallelPipelineId = nextParallelPipelineId();
+            parallelPipelines.add(new PipelineDefinition(id + "[" + parallelPipelines.size() + "]", steps));
+        }
+
         public void setParallelPipelines(List<PipelineDefinition> parallelPipelines) {
             for (PipelineDefinition parallelPipeline : parallelPipelines) {
-                parallelPipeline.setId(id + "[" + this.parallelPipelines.size() + "]");
+                parallelPipeline.setId(nextParallelPipelineId());
                 this.parallelPipelines.add(parallelPipeline);
             }
         }
@@ -108,7 +113,7 @@ public final class PipelineSpecification {
     public static class PipelineDefinition {
         private String id;
         @JsonProperty(required = true)
-        private List<String> steps;
+        private List<String> steps = new Vector<>();
 
         public PipelineDefinition() {
         }

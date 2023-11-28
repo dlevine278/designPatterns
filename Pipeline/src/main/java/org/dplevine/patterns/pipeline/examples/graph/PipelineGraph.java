@@ -3,6 +3,8 @@ package org.dplevine.patterns.pipeline.examples.graph;
 import org.dplevine.patterns.pipeline.*;
 
 import java.net.URL;
+import java.util.List;
+import java.util.Vector;
 import java.util.concurrent.Future;
 
 
@@ -44,6 +46,20 @@ public class PipelineGraph {
         }
     }
 
+    @StageBuilderDefinition(id = "stage 1")
+    @StageBuilderDefinition(id = "stage 2")
+    @StageBuilderDefinition(id = "stage 3")
+    @StageBuilderDefinition(id = "stage 4")
+    @StageBuilderDefinition(id = "stage 5")
+    @StageBuilderDefinition(id = "stage 6")
+    @StageBuilderDefinition(id = "stage 7")
+    @StageBuilderDefinition(id = "stage 8")
+    @StageBuilderDefinition(id = "stage 9")
+    @PipelineStepsDefinition(pipelineRootId = "Test", parallelId = "p1", steps = {"stage 1", "stage 2"})
+    @PipelineStepsDefinition(pipelineRootId = "Test", parallelId = "p1", steps = {"stage 3", "stage 4"})
+    @PipelineStepsDefinition(pipelineRootId = "Test", steps = {"stage 5", "p1", "stage 6"})
+    @PipelineStepsDefinition(pipelineRootId = "Test2", steps = {"stage 1", "stage 2"})
+    @PipelineStepsDefinition(pipelineRootId = "Test3", steps = {"stage 3", "stage 4"})
     public static class TimerStage implements Stage, StageBuilder {
         public TimerStage () {}
 
@@ -66,10 +82,13 @@ public class PipelineGraph {
     }
 
     public static void main(String args[]) throws Exception {
-        PipelineBuilder builder = PipelineBuilder.createBuilder();
+        List<String> packages = new Vector<>();
+        packages.add(PipelineGraph.class.getPackageName());
+        PipelineBuilder builder = PipelineBuilder.createBuilder(packages);
 
         URL url = PipelineGraph.class.getResource(PIPLINE_GRAPH);
-        Pipeline pipeline = builder.buildFromPathName(url.getPath());
+        //Pipeline pipeline = builder.buildFromPathName(url.getPath());
+        Pipeline pipeline = builder.buildFromAnnotations("Test3");
 
         TimerContext context = new TimerContext();
         context.setMaxDelay(MAX_DELAY);
