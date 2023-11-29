@@ -12,12 +12,6 @@ import java.util.*;
  */
 final class PipelineGenerator implements Stage {
 
-    private enum StageType {
-        Simple,
-        Pipeline,
-        Parallel,
-    }
-
     private Boolean isPipelineAcyclic(PipelineSpecification spec) {
         // no steps in the pipeline --> no cycles
         if (spec.getSteps().size() == 0) {
