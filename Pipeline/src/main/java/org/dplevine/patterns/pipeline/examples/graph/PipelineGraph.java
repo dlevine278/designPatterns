@@ -88,7 +88,7 @@ public class PipelineGraph {
 
         URL url = PipelineGraph.class.getResource(PIPLINE_GRAPH);
         //Pipeline pipeline = builder.buildFromPathName(url.getPath());
-        Pipeline pipeline = builder.buildFromAnnotations("Test3");
+        Pipeline pipeline = builder.buildFromAnnotations("Test");
 
         TimerContext context = new TimerContext();
         context.setMaxDelay(MAX_DELAY);

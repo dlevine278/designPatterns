@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.net.JarURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Vector;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -16,7 +16,7 @@ public class AnnotationScanner {
     public static List<Class<?>> scanClassesWithAnnotation(String packageName, Class<? extends Annotation> annotation) throws IOException, ClassNotFoundException {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         String path = packageName.replace('.', '/');
-        List<Class<?>> classes = new ArrayList<>();
+        List<Class<?>> classes = new Vector<>();
 
         Enumeration<URL> resources = classLoader.getResources(path);
         while (resources.hasMoreElements()) {
@@ -35,7 +35,7 @@ public class AnnotationScanner {
     }
 
     private static List<Class<?>> getClassesWithAnnotationInDirectory(String packageName, String filePath, Class<? extends Annotation> annotation) throws ClassNotFoundException {
-        List<Class<?>> classes = new ArrayList<>();
+        List<Class<?>> classes = new Vector<>();
         File directory = new File(filePath);
         if (directory.exists()) {
             File[] files = directory.listFiles();
@@ -57,7 +57,7 @@ public class AnnotationScanner {
     }
 
     private static List<Class<?>> getClassesWithAnnotationInJar(String packageName, JarFile jarFile, Class<? extends Annotation> annotation) throws IOException, ClassNotFoundException {
-        List<Class<?>> classes = new ArrayList<>();
+        List<Class<?>> classes = new Vector<>();
         Enumeration<JarEntry> entries = jarFile.entries();
         while (entries.hasMoreElements()) {
             JarEntry entry = entries.nextElement();

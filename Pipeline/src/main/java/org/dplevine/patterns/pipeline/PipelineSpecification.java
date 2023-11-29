@@ -25,9 +25,6 @@ public final class PipelineSpecification {
     private List<ParallelDefinition> parallels = new Vector<>();
     @JsonProperty(required = true)
     private List<String> steps = new Vector<>();
-    @JsonIgnore
-    private List<PipelineDefinition> pipelines = new Vector<>();
-
 
     public PipelineSpecification() {
     }
@@ -152,11 +149,10 @@ public final class PipelineSpecification {
         return parallels;
     }
 
-    public List<PipelineDefinition> getPipelines() {
-        pipelines.clear();
-        
-        getParallels().forEach(parallel -> pipelines.addAll(parallel.getParallelPipelines()));
-        return pipelines;
+    public List<PipelineDefinition> getAllParallelPipelines() {
+        List<PipelineDefinition> allParallelPipelines = new Vector<>();
+        getParallels().forEach(parallel -> allParallelPipelines.addAll(parallel.getParallelPipelines()));
+        return allParallelPipelines;
     }
 
     public List<String> getSteps() {
@@ -173,10 +169,6 @@ public final class PipelineSpecification {
 
     public void setParallels(List<ParallelDefinition> parallels) {
         this.parallels = parallels;
-    }
-
-    public void setPipelines(List<PipelineDefinition> pipelines) {
-        this.pipelines = pipelines;
     }
 
     public void setSteps(List<String> steps) {

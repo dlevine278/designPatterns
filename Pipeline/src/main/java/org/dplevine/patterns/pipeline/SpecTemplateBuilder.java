@@ -13,7 +13,6 @@ public final class SpecTemplateBuilder {
 
     private SpecTemplateBuilder() {}
 
-
     SpecTemplateBuilder(List<String> packages) {
         this.packages = Objects.requireNonNullElseGet(packages, Vector::new);
     }
@@ -115,7 +114,7 @@ public final class SpecTemplateBuilder {
         List<PipelineStepsDef> allParallelDefs= pipelineStepsDefs.values().stream().filter(pipelineStepDef -> !pipelineStepDef.getParallelId().equals("")).collect(Collectors.toList()); // parallelId != "" --> parallel
         for (PipelineSpecification pipelineSpecification : specTemplates.values()) {  // for each pipeline specification template
             List<PipelineStepsDef> pipelineParallelDefs = allParallelDefs.stream().filter(parallelDef -> parallelDef.getPipelineRootId().equals(pipelineSpecification.getId())).collect(Collectors.toList());
-            Map<String, PipelineSpecification.ParallelDefinition> parallelDefs = new HashMap<>();
+            Map<String, PipelineSpecification.ParallelDefinition> parallelDefs = new ConcurrentHashMap<>();
             for (PipelineStepsDef parallelDef : pipelineParallelDefs) {
                 if (!parallelDefs.containsKey(parallelDef.getParallelId())) {
                     parallelDefs.put(parallelDef.getParallelId(), new PipelineSpecification.ParallelDefinition());

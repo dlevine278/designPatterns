@@ -1,7 +1,9 @@
 package org.dplevine.patterns.pipeline;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.Vector;
 
 /**
  * The PipelineSpecValidator class is responsible for validating a PipelineSpecification to ensure that it adheres to certain rules
@@ -21,6 +23,7 @@ final class PipelineSpecValidator implements Stage {
     private final StageWrapper validateNullIDs = new StageWrapper(VALIDATE_NULL_IDS, (context) -> {
         PipelineSpecification spec = (PipelineSpecification) context.getObject(BuilderContext.PIPELINE_SPEC);
 
+
         if (spec.getId() == null || spec.getId().equals("")) {
             throw new PipelineBuilderException("The pipeline specification has a null identifier");
         }
@@ -33,7 +36,8 @@ final class PipelineSpecValidator implements Stage {
             throw new PipelineBuilderException("At least one parallel definition has a null identifier");
         }
 
-        if (spec.getPipelines().stream().anyMatch(pipelineDef -> pipelineDef.getId() == null || pipelineDef.getId().equals(""))) {
+        List<PipelineSpecification.PipelineDefinition> allParallelPipelines = spec.getAllParallelPipelines();
+        if (allParallelPipelines.stream().anyMatch(pipelineDef -> pipelineDef.getId() == null || pipelineDef.getId().equals(""))) {
             throw new PipelineBuilderException("At least one pipeline definition has a null identifier");
         }
 
@@ -52,7 +56,8 @@ final class PipelineSpecValidator implements Stage {
 
         spec.getStages().stream().filter(stageDef -> !ids.add(stageDef.getId())).forEach(stageDef -> duplicateIds.add(stageDef.getId()));
         spec.getParallels().stream().filter(parallelDef -> !ids.add(parallelDef.getId())).forEach(parallelDef -> duplicateIds.add(parallelDef.getId()));
-        spec.getPipelines().stream().filter(pipelineDef -> !ids.add(pipelineDef.getId())).forEach(pipelineDef -> duplicateIds.add(pipelineDef.getId()));
+        List<PipelineSpecification.PipelineDefinition> allParallelPipelines = spec.getAllParallelPipelines();
+        allParallelPipelines.stream().filter(pipelineDef -> !ids.add(pipelineDef.getId())).forEach(pipelineDef -> duplicateIds.add(pipelineDef.getId()));
 
         if (!duplicateIds.isEmpty()) {
             throw new PipelineBuilderException("The following Ids are duplicated:" + duplicateIds);
@@ -79,12 +84,13 @@ final class PipelineSpecValidator implements Stage {
         PipelineSpecification spec = (PipelineSpecification) context.getObject(BuilderContext.PIPELINE_SPEC);
         Set<String> malformedPipelines = new HashSet<>();
         Set<String> ids = new HashSet<>();
+        List<PipelineSpecification.PipelineDefinition> allParallelPipelines = spec.getAllParallelPipelines();
 
         spec.getStages().forEach( stageDef -> ids.add(stageDef.getId()));
-        spec.getPipelines().forEach(pipelineDef -> ids.add(pipelineDef.getId()));
+        allParallelPipelines.forEach(pipelineDef -> ids.add(pipelineDef.getId()));
         spec.getParallels().forEach(parallelDef -> ids.add(parallelDef.getId()));
 
-        for (PipelineSpecification.PipelineDefinition pipelineDef : spec.getPipelines()) {
+        for (PipelineSpecification.PipelineDefinition pipelineDef : allParallelPipelines) {
             pipelineDef.getSteps().stream().filter(pipelineStepDef -> !ids.contains(pipelineStepDef)).forEach(pipelineStepDef -> malformedPipelines.add(pipelineDef.getId()));
         }
 
@@ -100,9 +106,10 @@ final class PipelineSpecValidator implements Stage {
         PipelineSpecification spec = (PipelineSpecification) context.getObject(BuilderContext.PIPELINE_SPEC);
         Set<String> malformedParallels = new HashSet<>();
         Set<String> ids = new HashSet<>();
+        List<PipelineSpecification.PipelineDefinition> allParallelPipelines = spec.getAllParallelPipelines();
 
         spec.getStages().forEach( stageDef -> ids.add(stageDef.getId()));
-        spec.getPipelines().forEach(pipelineDef -> ids.add(pipelineDef.getId()));
+        allParallelPipelines.forEach(pipelineDef -> ids.add(pipelineDef.getId()));
         spec.getParallels().forEach(parallelDef -> ids.add(parallelDef.getId()));
 
         for (PipelineSpecification.ParallelDefinition parallelDef : spec.getParallels()) {
@@ -121,9 +128,10 @@ final class PipelineSpecValidator implements Stage {
         PipelineSpecification spec = (PipelineSpecification) context.getObject(BuilderContext.PIPELINE_SPEC);
         Set<String> malformedSteps = new HashSet<>();
         Set<String> ids = new HashSet<>();
+        List<PipelineSpecification.PipelineDefinition> allParallelPipelines = spec.getAllParallelPipelines();
 
         spec.getStages().forEach( stageDef -> ids.add(stageDef.getId()));
-        spec.getPipelines().forEach(pipelineDef -> ids.add(pipelineDef.getId()));
+        allParallelPipelines.forEach(pipelineDef -> ids.add(pipelineDef.getId()));
         spec.getParallels().forEach(parallelDef -> ids.add(parallelDef.getId()));
 
         spec.getSteps().stream().filter(stepDef -> !ids.contains(stepDef)).forEach(stepDef -> malformedSteps.add(stepDef));
